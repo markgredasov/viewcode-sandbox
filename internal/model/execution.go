@@ -8,6 +8,7 @@ type Execution struct {
 	InlineExpression bool
 	Arguments        []string
 	Environment      map[string]string
+	Tests            Tests
 
 	StdOut   *string
 	StdErr   *string

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MaxCodeLength = 1000
+	MaxCodeLength = 10000
 )
 
 type Code string

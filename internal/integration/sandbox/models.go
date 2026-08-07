@@ -6,6 +6,7 @@ type executionRequest struct {
 	Language string
 	Code     string
 	Timeout  time.Duration
+	Tests    *string
 }
 
 type executionResult struct {

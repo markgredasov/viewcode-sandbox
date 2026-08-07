@@ -31,6 +31,40 @@ func NewAdapter(config sandbox_config.Config) (*Adapter, error) {
 	}, nil
 }
 
+func (a *Adapter) RunTests(ctx context.Context, exec model.Execution, tests model.Tests) (model.Execution, error) {
+	language, ok := languageToExecutionLanguage[exec.Language]
+	if !ok {
+		return model.Execution{}, errs.ErrInvalidLanguage
+	}
+
+	testsCode := tests.Code.String()
+
+	req := executionRequest{
+		Language: language,
+		Code:     exec.Code.String(),
+		Timeout:  10 * time.Second,
+		Tests:    &testsCode,
+	}
+
+	execResult, err := a.sandbox.executeTests(ctx, req)
+	if err != nil {
+		return model.Execution{}, err
+	}
+
+	return model.Execution{
+		Language:         exec.Language,
+		Code:             exec.Code,
+		InlineExpression: exec.InlineExpression,
+		Arguments:        exec.Arguments,
+		Environment:      exec.Environment,
+		Tests:            tests,
+
+		StdOut:   &execResult.StdOut,
+		StdErr:   &execResult.StdErr,
+		Duration: &execResult.Duration,
+	}, nil
+}
+
 func (a *Adapter) RunCode(ctx context.Context, exec model.Execution) (model.Execution, error) {
 	language, ok := languageToExecutionLanguage[exec.Language]
 	if !ok {
