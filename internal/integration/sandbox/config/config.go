@@ -2,14 +2,16 @@ package sandbox_config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
-	DockerHost            string `envconfig:"HOST" required:"true"`
-	DockerNetwork         string `envconfig:"NETWORK" required:"true"`
-	DockerContainerMemory int64  `envconfig:"MEMORY_IN_MB" required:"true"`
+	DockerHost           string        `envconfig:"HOST" required:"true"`
+	DockerNetwork        string        `envconfig:"NETWORK" required:"true"`
+	ContainerMemory      int64         `envconfig:"MEMORY_IN_MB" required:"true"`
+	ContainerExecTimeout time.Duration `envconfig:"EXEC_TIMEOUT" required:"true"`
 }
 
 func newConfig() (Config, error) {

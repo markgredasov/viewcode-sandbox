@@ -3,12 +3,9 @@ package model
 import "time"
 
 type Execution struct {
-	Language         Language
-	Code             Code
-	InlineExpression bool
-	Arguments        []string
-	Environment      map[string]string
-	Tests            Tests
+	Language Language
+	Code     Code
+	Tests    Tests
 
 	StdOut   *string
 	StdErr   *string
@@ -27,11 +24,8 @@ func NewExecution(language, code string) (Execution, error) {
 	}
 
 	return Execution{
-		Language:         languageObject,
-		Code:             codeObject,
-		InlineExpression: false,
-		Arguments:        []string{},
-		Environment:      make(map[string]string),
+		Language: languageObject,
+		Code:     codeObject,
 	}, nil
 }
 

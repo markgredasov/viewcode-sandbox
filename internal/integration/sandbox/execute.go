@@ -67,47 +67,6 @@ func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*
 	return result, nil
 }
 
-func (s *sandbox) execute(ctx context.Context, request executionRequest) (*executionResult, error) {
-	startTime := time.Now()
-	result := &executionResult{}
-
-	workDir, err := os.MkdirTemp("", "sandbox-*")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create temp dir: %w", err)
-	}
-	defer os.RemoveAll(workDir)
-
-	if err := s.saveCode("main.go", workDir, request.Code); err != nil {
-		return nil, err
-	}
-
-	containerID, err := s.createContainer(ctx, workDir, request)
-	if err != nil {
-		return nil, err
-	}
-	defer s.cleanupContainer(ctx, containerID)
-
-	if err := s.startContainer(ctx, containerID); err != nil {
-		return nil, err
-	}
-
-	exitCode, err := s.waitContainer(ctx, containerID, request.Timeout)
-	if err != nil {
-		return nil, err
-	}
-	result.ExitCode = exitCode
-
-	stdout, stderr, err := s.getLogs(ctx, containerID)
-	if err != nil {
-		return nil, err
-	}
-	result.StdOut = stdout
-	result.StdErr = stderr
-	result.Duration = time.Since(startTime)
-
-	return result, nil
-}
-
 func (s *sandbox) saveCode(filename, workDir string, code string) error {
 	filepath := filepath.Join(workDir, filename)
 
@@ -126,7 +85,7 @@ func (s *sandbox) createGoMod(workDir string) error {
 }
 
 func (s *sandbox) createContainer(ctx context.Context, workDir string, request executionRequest) (string, error) {
-	memoryInBytes := memoryToBytes(s.config.DockerContainerMemory)
+	memoryInBytes := memoryToBytes(s.config.ContainerMemory)
 	resources := container.Resources{
 		Memory:     memoryInBytes,
 		MemorySwap: memoryInBytes,
@@ -236,6 +195,9 @@ func (s *sandbox) getImageAndCmd(ctx context.Context, language string) (string, 
 	case "go":
 		image = "golang:latest"
 		cmd = []string{"go", "test", "-v"}
+	case "python3":
+		image = "python:alpine"
+		cmd = []string{"python", "-m", "unittest"}
 	default:
 		return image, cmd, errs.ErrInvalidLanguage
 	}
