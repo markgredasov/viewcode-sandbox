@@ -45,9 +45,20 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 		fallthrough
 	case errors.Is(err, errs.ErrInvalidLanguage):
 		fallthrough
+	case errors.Is(err, errs.ErrEmptyProblemName):
+		fallthrough
+	case errors.Is(err, errs.ErrTooLargeProblemName):
+		fallthrough
+	case errors.Is(err, errs.ErrEmptyProblemDescription):
+		fallthrough
+	case errors.Is(err, errs.ErrTooLargeProblemDescription):
+		fallthrough
 	case errors.Is(err, errs.ErrTooLargeCode):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Info
+	case errors.Is(err, errs.ErrProblemAlreadyExists):
+		statusCode = http.StatusBadRequest
+		logFunc = h.log.Error
 	default:
 		statusCode = http.StatusInternalServerError
 		logFunc = h.log.Error
