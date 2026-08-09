@@ -29,7 +29,7 @@ func NewAdapter(config sandbox_config.Config) (*Adapter, error) {
 	}, nil
 }
 
-func (a *Adapter) RunTests(ctx context.Context, exec model.Execution, tests model.Tests) (model.Execution, error) {
+func (a *Adapter) RunTests(ctx context.Context, exec model.Execution, tests model.Verification) (model.Execution, error) {
 	language, ok := languageToExecutionLanguage[exec.Language]
 	if !ok {
 		return model.Execution{}, errs.ErrInvalidLanguage

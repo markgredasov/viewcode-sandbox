@@ -12,15 +12,16 @@ type ExecutionsService struct {
 }
 
 type TestsRunningPort interface {
-	RunTests(ctx context.Context, exec model.Execution, tests model.Tests) (model.Execution, error)
+	RunTests(ctx context.Context, exec model.Execution, tests model.Verification) (model.Execution, error)
 }
 
 type TestsRepository interface {
-	Get(ctx context.Context, problemID string) (model.Tests, error)
+	GetByID(ctx context.Context, problemID string) (model.Verification, error)
 }
 
-func NewExecutionsService(testsRunningPort TestsRunningPort) *ExecutionsService {
+func NewExecutionsService(testsRunningPort TestsRunningPort, testsRepo TestsRepository) *ExecutionsService {
 	return &ExecutionsService{
 		testsRunningPort: testsRunningPort,
+		testsRepo:        testsRepo,
 	}
 }

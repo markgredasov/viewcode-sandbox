@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	database_postgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	server_http "github.com/markgredasov/viewcode-sandbox/internal/server/http/server"
 	"go.uber.org/zap"
@@ -15,6 +16,7 @@ type App struct {
 	cancelFunc context.CancelFunc
 	logger     *logger.Logger
 	server     *server_http.HTTPServer
+	pool       *database_postgres.ConnectionPool
 }
 
 func NewApp(ctx context.Context, cancelFunc context.CancelFunc) *App {
@@ -29,6 +31,11 @@ func (a *App) Run() error {
 		//nolint:forbidigo // logger was not initialized to write here smth
 		fmt.Println("failed to initialize logger:", err)
 		os.Exit(1)
+	}
+
+	a.logger.Debug("initializing connection pool")
+	if err := a.initPostgresPool(); err != nil {
+		a.logger.Fatal("initialize pool", zap.Error(err))
 	}
 
 	a.logger.Debug("initializing features")
@@ -46,5 +53,6 @@ func (a *App) Run() error {
 }
 
 func (a *App) Close() {
+	a.pool.Close()
 	a.logger.Close()
 }

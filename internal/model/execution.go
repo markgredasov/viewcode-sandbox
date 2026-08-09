@@ -1,18 +1,29 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Execution struct {
+	ProblemID uuid.UUID
+
 	Language Language
 	Code     Code
-	Tests    Tests
+	Tests    Verification
 
 	StdOut   *string
 	StdErr   *string
 	Duration *time.Duration
 }
 
-func NewExecution(language, code string) (Execution, error) {
+func NewExecution(id, language, code string) (Execution, error) {
+	uuidObject, err := uuid.Parse(id)
+	if err != nil {
+		return Execution{}, err
+	}
+
 	languageObject, err := NewLanguage(language)
 	if err != nil {
 		return Execution{}, err
@@ -24,8 +35,9 @@ func NewExecution(language, code string) (Execution, error) {
 	}
 
 	return Execution{
-		Language: languageObject,
-		Code:     codeObject,
+		ProblemID: uuidObject,
+		Language:  languageObject,
+		Code:      codeObject,
 	}, nil
 }
 

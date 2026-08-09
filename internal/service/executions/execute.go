@@ -7,7 +7,9 @@ import (
 )
 
 func (s *ExecutionsService) Execute(ctx context.Context, exec model.Execution) (model.Execution, error) {
-	tests, err := model.NewTests(`implement me`)
+	problemID := exec.ProblemID.String()
+
+	tests, err := s.testsRepo.GetByID(ctx, problemID)
 	if err != nil {
 		return model.Execution{}, err
 	}

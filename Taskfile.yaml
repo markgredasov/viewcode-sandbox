@@ -11,6 +11,15 @@ vars:
   
   LOGGER_LEVEL: DEBUG
 
+env:
+  PROJECT_ROOT:
+    sh: |
+      if [ "$(go env GOOS)" = "windows" ]; then
+        powershell -c "(Get-Location).Path -replace '\\\\', '/'"
+      else
+        pwd
+      fi
+
 tasks:
   install-golangci-lint:
     cmds:
@@ -28,12 +37,6 @@ tasks:
     cmds:
       - '{{.GOLANGCI_LINT}} run ./... --config=.golangci.yml'
 
-  env-up:
-    cmds:
-
-  env-down:
-    cmds:
-
   run:
     cmds:
       - go run ./cmd/app/main.go
@@ -47,3 +50,27 @@ tasks:
     env:
       LOGGER_LEVEL: '{{.LOGGER_LEVEL}}'
       LOGGER_FOLDER: '{{.LOGGER_FOLDER | default "./out/logs/"}}'
+
+  migrate-create:
+    cmds:
+      - goose postgres "host={{.POSTGRES_HOST}} user={{.POSTGRES_USER}} database={{.POSTGRES_DB}} password={{.POSTGRES_PASSWORD}} sslmode=disable" -dir {{.PROJECT_ROOT}}/migrations create {{.NAME}} sql
+
+  migrate-status:
+    cmds:
+      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations status
+
+  migrate-up:
+    cmds:
+      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations up
+
+  migrate-down:
+    cmds:
+      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations down
+
+  env-up:
+    cmds:
+      - docker compose up -d postgres
+
+  env-down:
+    cmds:
+      - docker compose down postgres

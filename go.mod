@@ -4,9 +4,9 @@ go 1.26.2
 
 require (
 	github.com/google/uuid v1.6.0
+	github.com/jackc/pgx/v5 v5.10.0
 	github.com/k0kubun/pp/v3 v3.5.2
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/markgredasov/viewcode v0.0.0-20260804162933-38b1eb79cc30
 	github.com/moby/moby/api v1.55.0
 	github.com/moby/moby/client v0.5.1
 	go.uber.org/zap v1.28.0
@@ -22,6 +22,9 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/jackc/pgpassfile v1.0.0 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
@@ -33,6 +36,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
+	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 )

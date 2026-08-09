@@ -19,7 +19,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	exec, err := model.NewExecution("go", `
+	exec, err := model.NewExecution("", "go", `
 	package solution
 
 	func twoSum(nums []int, target int) []int {
@@ -37,7 +37,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tests, err := model.NewTests(`
+	tests, err := model.NewVerification(`
 	package solution
 
 	import "testing"

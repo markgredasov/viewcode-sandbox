@@ -15,7 +15,6 @@ import (
 )
 
 func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*executionResult, error) {
-	startTime := time.Now()
 	result := &executionResult{}
 
 	workDir, err := os.MkdirTemp("", "sandbox-*")
@@ -46,6 +45,7 @@ func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*
 	}
 	defer s.cleanupContainer(ctx, containerID)
 
+	startTime := time.Now()
 	if err := s.startContainer(ctx, containerID); err != nil {
 		return nil, err
 	}
@@ -55,6 +55,7 @@ func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*
 		return nil, err
 	}
 	result.ExitCode = exitCode
+	result.Duration = time.Since(startTime)
 
 	stdout, stderr, err := s.getLogs(ctx, containerID)
 	if err != nil {
@@ -62,7 +63,6 @@ func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*
 	}
 	result.StdOut = stdout
 	result.StdErr = stderr
-	result.Duration = time.Since(startTime)
 
 	return result, nil
 }

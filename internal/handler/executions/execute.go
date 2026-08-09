@@ -11,8 +11,9 @@ import (
 )
 
 type ExecuteDTORequest struct {
-	Language string `json:"language"`
-	Code     string `json:"code"`
+	ProblemID string `json:"problem_id"`
+	Language  string `json:"language"`
+	Code      string `json:"code"`
 }
 
 type ExecuteDTOResponse struct {
@@ -32,7 +33,7 @@ func (h *ExecutionsHTTPHandler) Execute(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	executionFromRequest, err := model.NewExecution(req.Language, req.Code)
+	executionFromRequest, err := model.NewExecution(req.ProblemID, req.Language, req.Code)
 	if err != nil {
 		responseHandler.ErrorResponse(err, err.Error())
 		return
