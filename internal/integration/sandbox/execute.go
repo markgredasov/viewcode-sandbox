@@ -199,7 +199,7 @@ func (s *sandbox) getImageAndCmd(ctx context.Context, language string) (string, 
 		image = "python:alpine"
 		cmd = []string{"python", "-m", "unittest"}
 	default:
-		return image, cmd, errs.ErrInvalidLanguage
+		return image, cmd, fmt.Errorf("invalid language: %w", errs.ErrInvalidArgument)
 	}
 
 	return image, cmd, nil

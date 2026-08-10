@@ -1,6 +1,10 @@
 package model
 
-import errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
+import (
+	"fmt"
+
+	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
+)
 
 type Language string
 
@@ -13,7 +17,7 @@ const (
 func NewLanguage(lang string) (Language, error) {
 	language := Language(lang)
 	if !language.IsValid() {
-		return "", errs.ErrInvalidLanguage
+		return "", fmt.Errorf("invalid language: %w", errs.ErrInvalidArgument)
 	}
 
 	return language, nil

@@ -7,7 +7,7 @@ import (
 )
 
 func (s *ProblemsService) Create(ctx context.Context, name, description string) (model.Problem, error) {
-	problem, err := model.NewProblem(name, description)
+	problem, err := model.NewProblemUnitialized(name, description)
 	if err != nil {
 		return model.Problem{}, err
 	}

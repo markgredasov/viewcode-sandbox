@@ -1,11 +1,17 @@
 package model
 
 import (
+	"fmt"
 	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
+)
+
+const (
+	maxProblemNameLength = 70
+	maxDescriptionLength = 10_000
 )
 
 type Problem struct {
@@ -15,21 +21,46 @@ type Problem struct {
 	CreatedAt   time.Time
 }
 
-func NewProblem(name, description string) (Problem, error) {
+func NewProblem(problemID, name, description string, createdAt time.Time) (Problem, error) {
 	if utf8.RuneCountInString(name) <= 0 {
-		return Problem{}, errs.ErrEmptyProblemName
+		return Problem{}, fmt.Errorf("empty problem name: %w", errs.ErrInvalidArgument)
 	}
 
-	if utf8.RuneCountInString(name) >= 70 {
-		return Problem{}, errs.ErrTooLargeProblemName
+	if utf8.RuneCountInString(name) >= maxProblemNameLength {
+		return Problem{}, fmt.Errorf("problem name is too large: %w", errs.ErrInvalidArgument)
 	}
 
 	if utf8.RuneCountInString(description) <= 0 {
-		return Problem{}, errs.ErrEmptyProblemDescription
+		return Problem{}, fmt.Errorf("description is empty: %w", errs.ErrInvalidArgument)
 	}
 
-	if utf8.RuneCountInString(description) >= 10000 {
-		return Problem{}, errs.ErrTooLargeProblemDescription
+	if utf8.RuneCountInString(description) >= maxDescriptionLength {
+		return Problem{}, fmt.Errorf("description is too large: %w", errs.ErrInvalidArgument)
+	}
+
+	return Problem{
+		ProblemID:   problemID,
+		Name:        name,
+		Description: description,
+		CreatedAt:   createdAt,
+	}, nil
+}
+
+func NewProblemUnitialized(name, description string) (Problem, error) {
+	if utf8.RuneCountInString(name) <= 0 {
+		return Problem{}, fmt.Errorf("empty problem name: %w", errs.ErrInvalidArgument)
+	}
+
+	if utf8.RuneCountInString(name) >= maxProblemNameLength {
+		return Problem{}, fmt.Errorf("problem name is too large: %w", errs.ErrInvalidArgument)
+	}
+
+	if utf8.RuneCountInString(description) <= 0 {
+		return Problem{}, fmt.Errorf("description is empty: %w", errs.ErrInvalidArgument)
+	}
+
+	if utf8.RuneCountInString(description) >= maxDescriptionLength {
+		return Problem{}, fmt.Errorf("description is too large: %w", errs.ErrInvalidArgument)
 	}
 
 	return Problem{

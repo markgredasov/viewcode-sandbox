@@ -14,6 +14,9 @@ type ProblemsHTTPHandler struct {
 
 type ProblemsService interface {
 	Create(ctx context.Context, name, description string) (model.Problem, error)
+	GetAll(ctx context.Context) ([]model.Problem, error)
+	GetByID(ctx context.Context, id string) (model.Problem, error)
+	Delete(ctx context.Context, id string) error
 }
 
 func NewProblemsHTTPHandler(problemsService ProblemsService) *ProblemsHTTPHandler {
@@ -28,6 +31,21 @@ func (h *ProblemsHTTPHandler) Routes() []server_http.Route {
 			Method:  http.MethodPost,
 			Path:    "/problems",
 			Handler: h.Create,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/problems",
+			Handler: h.GetAll,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/problems/{id}",
+			Handler: h.GetByID,
+		},
+		{
+			Method:  http.MethodDelete,
+			Path:    "/problems/{id}",
+			Handler: h.Delete,
 		},
 	}
 }

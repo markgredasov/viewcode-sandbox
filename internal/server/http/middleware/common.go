@@ -37,6 +37,7 @@ func Logger(l *logger.Logger) Middleware {
 
 			logger := l.With(
 				zap.String("Request-ID", requestID),
+				zap.String("Method", r.Method),
 				zap.String("URL", r.URL.String()),
 			)
 
