@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE IF NOT EXISTS problems_tests (
+CREATE TABLE IF NOT EXISTS code_verification (
     id UUID PRIMARY KEY,
     problem_id UUID UNIQUE NOT NULL,
     tests_code VARCHAR(10000) NOT NULL,
@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS problems_tests (
 );
 
 -- +goose Down
-DROP TABLE IF EXISTS problems_tests;
+DROP TABLE IF EXISTS code_verification;

@@ -16,16 +16,27 @@ func (r *ProblemsRepository) Create(ctx context.Context, problem model.Problem) 
 	sqlQuery := `
 		INSERT INTO public.problems (id, name, description)
 		VALUES ($1, $2, $3)
-		RETURNING id, name, description, created_at;
+		RETURNING id, name, description, created_at, langs;
 	`
 
 	row := r.pool.QueryRow(ctx, sqlQuery, problem.ProblemID, problem.Name, problem.Description)
 
-	var createdProblem model.Problem
-	if err := row.Scan(&createdProblem.ProblemID, &createdProblem.Name, &createdProblem.Description, &createdProblem.CreatedAt); err != nil {
+	var pr ProblemRecord
+	if err := row.Scan(
+		&pr.ProblemID,
+		&pr.Name,
+		&pr.Description,
+		&pr.CreatedAt,
+		&pr.Languages,
+	); err != nil {
 		if _, ok := errors.AsType[*pgconn.PgError](err); ok {
 			return model.Problem{}, errs.ErrProblemAlreadyExists
 		}
+		return model.Problem{}, err
+	}
+
+	createdProblem, err := fromProblemRecordToModel(pr)
+	if err != nil {
 		return model.Problem{}, err
 	}
 

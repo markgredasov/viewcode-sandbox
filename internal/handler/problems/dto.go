@@ -16,6 +16,7 @@ type ProblemDTOResponse struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
+	Languages   []string  `json:"languages"`
 }
 
 func fromModelToDTO(m model.Problem) ProblemDTOResponse {
@@ -24,5 +25,6 @@ func fromModelToDTO(m model.Problem) ProblemDTOResponse {
 		Name:        m.Name,
 		Description: m.Description,
 		CreatedAt:   m.CreatedAt,
+		Languages:   model.ConvertFrom(m.Languages),
 	}
 }

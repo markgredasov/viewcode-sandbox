@@ -6,13 +6,13 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-func (r *VerificationRepository) GetByID(ctx context.Context, problemID string) (model.Verification, error) {
+func (r *CodeVerificationRepository) GetByID(ctx context.Context, problemID string) (model.Verification, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
 	sqlQuery := `
 		SELECT tests_code
-		FROM public.problems_tests
+		FROM public.code_verification
 		WHERE problem_id = $1;
 	`
 

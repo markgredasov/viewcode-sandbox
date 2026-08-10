@@ -15,18 +15,23 @@ func (r *ProblemsRepository) GetByID(ctx context.Context, id string) (model.Prob
 	defer cancel()
 
 	sqlQuery := `
-		SELECT id, name, description, created_at
+		SELECT id, name, description, created_at, langs
 		FROM problems
 		WHERE id = $1;
 	`
 
 	row := r.pool.QueryRow(ctx, sqlQuery, id)
 
-	var problem model.Problem
-	if err := row.Scan(&problem.ProblemID, &problem.Name, &problem.Description, &problem.CreatedAt); err != nil {
+	var pr ProblemRecord
+	if err := row.Scan(&pr.ProblemID, &pr.Name, &pr.Description, &pr.CreatedAt, &pr.Languages); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Problem{}, fmt.Errorf("problem not found: %w", errs.ErrNotFound)
 		}
+		return model.Problem{}, err
+	}
+
+	problem, err := fromProblemRecordToModel(pr)
+	if err != nil {
 		return model.Problem{}, err
 	}
 

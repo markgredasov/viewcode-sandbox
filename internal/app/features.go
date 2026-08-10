@@ -39,7 +39,7 @@ func (a *App) initFeatureExecutions() ([]server_http.Route, error) {
 		return []server_http.Route{}, err
 	}
 
-	repository := verification.NewVerificationRepository(a.pool)
+	repository := verification.NewCodeVerificationRepository(a.pool)
 	service := service_executions.NewExecutionsService(adapter, repository)
 	handler := handler_executions.NewExecutionsHTTPHandler(service)
 

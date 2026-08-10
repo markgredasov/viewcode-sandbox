@@ -11,7 +11,7 @@ func (r *ProblemsRepository) GetAll(ctx context.Context) ([]model.Problem, error
 	defer cancel()
 
 	sqlQuery := `
-		SELECT id, name, description, created_at
+		SELECT id, name, description, created_at, langs
 		FROM problems;
 	`
 
@@ -23,14 +23,20 @@ func (r *ProblemsRepository) GetAll(ctx context.Context) ([]model.Problem, error
 
 	problemModels := make([]model.Problem, 0)
 	for rows.Next() {
-		var problemModel model.Problem
+		var pr ProblemRecord
 
 		err := rows.Scan(
-			&problemModel.ProblemID,
-			&problemModel.Name,
-			&problemModel.Description,
-			&problemModel.CreatedAt,
+			&pr.ProblemID,
+			&pr.Name,
+			&pr.Description,
+			&pr.CreatedAt,
+			&pr.Languages,
 		)
+		if err != nil {
+			return []model.Problem{}, err
+		}
+
+		problemModel, err := fromProblemRecordToModel(pr)
 		if err != nil {
 			return []model.Problem{}, err
 		}

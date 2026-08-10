@@ -19,9 +19,10 @@ type Problem struct {
 	Name        string
 	Description string
 	CreatedAt   time.Time
+	Languages   []Language
 }
 
-func NewProblem(problemID, name, description string, createdAt time.Time) (Problem, error) {
+func NewProblem(problemID, name, description string, createdAt time.Time, languages []string) (Problem, error) {
 	if utf8.RuneCountInString(name) <= 0 {
 		return Problem{}, fmt.Errorf("empty problem name: %w", errs.ErrInvalidArgument)
 	}
@@ -38,11 +39,17 @@ func NewProblem(problemID, name, description string, createdAt time.Time) (Probl
 		return Problem{}, fmt.Errorf("description is too large: %w", errs.ErrInvalidArgument)
 	}
 
+	languageValueObjects, err := ConvertTo(languages)
+	if err != nil {
+		return Problem{}, fmt.Errorf("convert languages: %w", err)
+	}
+
 	return Problem{
 		ProblemID:   problemID,
 		Name:        name,
 		Description: description,
 		CreatedAt:   createdAt,
+		Languages:   languageValueObjects,
 	}, nil
 }
 
