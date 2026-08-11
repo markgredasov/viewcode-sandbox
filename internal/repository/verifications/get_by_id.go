@@ -1,4 +1,4 @@
-package verification
+package verifications
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func (r *CodeVerificationRepository) GetByID(ctx context.Context, problemID stri
 		return model.Verification{}, err
 	}
 
-	testsModel, err := model.NewVerification(testsCode)
+	testsModel, err := model.NewVerificationByCodeValue(testsCode)
 	if err != nil {
 		return model.Verification{}, err
 	}

@@ -1,4 +1,4 @@
-package verification
+package verifications
 
 import database_postgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 
