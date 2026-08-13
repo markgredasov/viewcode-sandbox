@@ -9,9 +9,16 @@ import (
 type Language string
 
 const (
-	LanguageGo     = Language("go")
-	LanguagePython = Language("py")
-	LanguageRust   = Language("rs")
+	LanguageGo         = Language("go")
+	LanguagePython     = Language("py")
+	LanguageJava       = Language("java")
+	LanguageCpp        = Language("cpp")
+	LanguageJavaScript = Language("js")
+	LanguageTypeScript = Language("ts")
+	LanguageCSharp     = Language("csharp")
+	LanguageKotlin     = Language("ko")
+	LanguageSwift      = Language("sw")
+	LanguageRust       = Language("rust")
 )
 
 func NewLanguage(lang string) (Language, error) {
@@ -52,7 +59,8 @@ func (l Language) String() string {
 
 func (l Language) IsValid() bool {
 	switch l {
-	case LanguageGo, LanguagePython, LanguageRust:
+	case LanguageGo, LanguagePython, LanguageJava, LanguageCpp, LanguageJavaScript,
+		LanguageTypeScript, LanguageCSharp, LanguageKotlin, LanguageSwift, LanguageRust:
 		return true
 	}
 

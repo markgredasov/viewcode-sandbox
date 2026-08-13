@@ -46,7 +46,7 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	case errors.Is(err, errs.ErrInvalidArgument):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Info
-	case errors.Is(err, errs.ErrProblemAlreadyExists):
+	case errors.Is(err, errs.ErrAlreadyExists):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Error
 	case errors.Is(err, errs.ErrNotFound):

@@ -12,6 +12,7 @@ type VerificationsService struct {
 
 type VerificationsRepository interface {
 	Create(ctx context.Context, verification model.Verification) (model.Verification, error)
+	GetByProblemIDAndLanguage(ctx context.Context, problemID string, language model.Language) (model.Verification, error)
 }
 
 func NewVerificationsService(repo VerificationsRepository) *VerificationsService {

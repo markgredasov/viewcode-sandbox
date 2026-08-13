@@ -3,6 +3,7 @@ package problems
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
@@ -29,8 +30,9 @@ func (r *ProblemsRepository) Create(ctx context.Context, problem model.Problem) 
 		&pr.CreatedAt,
 		&pr.Languages,
 	); err != nil {
-		if _, ok := errors.AsType[*pgconn.PgError](err); ok {
-			return model.Problem{}, errs.ErrProblemAlreadyExists
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return model.Problem{}, fmt.Errorf("problem with this name='%s' already exists: %w", problem.Name, errs.ErrAlreadyExists)
 		}
 		return model.Problem{}, err
 	}

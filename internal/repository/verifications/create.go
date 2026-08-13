@@ -2,7 +2,11 @@ package verifications
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
+	"github.com/jackc/pgx/v5/pgconn"
+	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
@@ -21,6 +25,15 @@ func (r *CodeVerificationRepository) Create(ctx context.Context, verification mo
 	var record VerificationRecord
 	err := row.Scan(&record.ID, &record.ProblemID, &record.Code, &record.CreatedAt, &record.SubmissionsCount, &record.Language)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return model.Verification{}, fmt.Errorf(
+				"verification code for problem_id=%s and language=%s already exists: %w",
+				verification.ProblemID,
+				verification.Language,
+				errs.ErrAlreadyExists,
+			)
+		}
 		return model.Verification{}, err
 	}
 
