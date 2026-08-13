@@ -7,7 +7,7 @@ import (
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 )
 
-func (r *ProblemsRepository) Delete(ctx context.Context, id string) error {
+func (r *Repository) Delete(ctx context.Context, id string) error {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 

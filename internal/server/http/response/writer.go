@@ -2,27 +2,28 @@ package response
 
 import "net/http"
 
-var StatusCodeUnitialized = -1
+var statusCodeUnitialized = -1
 
-type ResponseWriter struct {
+type Writer struct {
 	http.ResponseWriter
+
 	statusCode int
 }
 
-func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
-	return &ResponseWriter{
+func NewResponseWriter(w http.ResponseWriter) *Writer {
+	return &Writer{
 		ResponseWriter: w,
-		statusCode:     StatusCodeUnitialized,
+		statusCode:     statusCodeUnitialized,
 	}
 }
 
-func (rw *ResponseWriter) WriteHeader(statusCode int) {
+func (rw *Writer) WriteHeader(statusCode int) {
 	rw.ResponseWriter.WriteHeader(statusCode)
 	rw.statusCode = statusCode
 }
 
-func (rw *ResponseWriter) GetStatusCode() int {
-	if rw.statusCode == StatusCodeUnitialized {
+func (rw *Writer) GetStatusCode() int {
+	if rw.statusCode == statusCodeUnitialized {
 		panic("no status code set")
 	}
 	return rw.statusCode

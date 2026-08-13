@@ -21,7 +21,7 @@ func (h *ProblemsHTTPHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.problemsService.Delete(ctx, problemID); err != nil {
+	if err = h.problemsService.Delete(ctx, problemID); err != nil {
 		responseHandler.ErrorResponse(err, err.Error())
 		return
 	}

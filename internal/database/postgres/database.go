@@ -3,6 +3,7 @@ package database_postgres
 import (
 	"context"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -23,6 +24,7 @@ type Pool interface {
 
 type ConnectionPool struct {
 	*pgxpool.Pool
+
 	opTimeout time.Duration
 }
 
@@ -30,12 +32,12 @@ func NewConnectionPool(
 	ctx context.Context,
 	config Config,
 ) (*ConnectionPool, error) {
+	hostAndPort := net.JoinHostPort(config.Host, config.Port)
 	connectionString := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		"postgres://%s:%s@%s/%s?sslmode=disable",
 		config.Username,
 		config.Password,
-		config.Host,
-		config.Port,
+		hostAndPort,
 		config.DB,
 	)
 
@@ -49,7 +51,7 @@ func NewConnectionPool(
 		return nil, fmt.Errorf("create pgxpool: %w", err)
 	}
 
-	if err := pool.Ping(ctx); err != nil {
+	if err = pool.Ping(ctx); err != nil {
 		return nil, fmt.Errorf("pgxpool ping: %w", err)
 	}
 

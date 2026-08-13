@@ -23,19 +23,19 @@ func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*
 	}
 	defer os.RemoveAll(workDir)
 
-	if err := s.saveCode("main.go", workDir, request.Code); err != nil {
+	if err = s.saveCode("main.go", workDir, request.Code); err != nil {
 		return nil, err
 	}
 
 	if request.Tests != nil {
-		if err := s.saveCode("main_test.go", workDir, *request.Tests); err != nil {
+		if err = s.saveCode("main_test.go", workDir, *request.Tests); err != nil {
 			return nil, err
 		}
 	} else {
 		return nil, errs.ErrNoTestsProvided
 	}
 
-	if err := s.createGoMod(workDir); err != nil {
+	if err = s.createGoMod(workDir); err != nil {
 		return nil, err
 	}
 
@@ -46,7 +46,7 @@ func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*
 	defer s.cleanupContainer(ctx, containerID)
 
 	startTime := time.Now()
-	if err := s.startContainer(ctx, containerID); err != nil {
+	if err = s.startContainer(ctx, containerID); err != nil {
 		return nil, err
 	}
 
@@ -91,7 +91,7 @@ func (s *sandbox) createContainer(ctx context.Context, workDir string, request e
 		MemorySwap: memoryInBytes,
 	}
 
-	image, cmd, err := s.getImageAndCmd(ctx, request.Language)
+	image, cmd, err := s.getImageAndCmd(request.Language)
 	if err != nil {
 		return "", err
 	}
@@ -135,7 +135,13 @@ func (s *sandbox) waitContainer(ctx context.Context, containerID string, timeout
 	waitCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	statusCh := s.dockerClient.ContainerWait(waitCtx, containerID, client.ContainerWaitOptions{Condition: container.WaitConditionNotRunning})
+	statusCh := s.dockerClient.ContainerWait(
+		waitCtx,
+		containerID,
+		client.ContainerWaitOptions{
+			Condition: container.WaitConditionNotRunning,
+		},
+	)
 
 	select {
 	case status := <-statusCh.Result:
@@ -144,6 +150,7 @@ func (s *sandbox) waitContainer(ctx context.Context, containerID string, timeout
 		}
 		return status.StatusCode, nil
 	case <-waitCtx.Done():
+		//nolint:errcheck // not needed
 		s.dockerClient.ContainerStop(context.Background(), containerID, client.ContainerStopOptions{})
 		return 0, fmt.Errorf("execution timeout after %v", timeout)
 	}
@@ -182,13 +189,15 @@ func (s *sandbox) getLogs(ctx context.Context, containerID string) (string, stri
 }
 
 func (s *sandbox) cleanupContainer(ctx context.Context, containerID string) {
+	//nolint:errcheck // not needed
 	s.dockerClient.ContainerStop(ctx, containerID, client.ContainerStopOptions{})
+	//nolint:errcheck // not needed
 	s.dockerClient.ContainerRemove(ctx, containerID, client.ContainerRemoveOptions{
 		Force: true,
 	})
 }
 
-func (s *sandbox) getImageAndCmd(ctx context.Context, language string) (string, []string, error) {
+func (s *sandbox) getImageAndCmd(language string) (string, []string, error) {
 	image, cmd := "", []string{}
 
 	switch language {
@@ -206,5 +215,6 @@ func (s *sandbox) getImageAndCmd(ctx context.Context, language string) (string, 
 }
 
 func memoryToBytes(memoryInMB int64) int64 {
-	return memoryInMB * 1024 * 1024
+	var factor int64 = 1024 * 1024
+	return memoryInMB * factor
 }

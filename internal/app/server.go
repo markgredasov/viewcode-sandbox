@@ -5,8 +5,8 @@ import (
 	server_http "github.com/markgredasov/viewcode-sandbox/internal/server/http/server"
 )
 
-func (a *App) initHTTPServer(routes []server_http.Route) error {
-	apiVersion1Router := server_http.NewApiVersionRouter(server_http.ApiVersion1)
+func (a *App) initHTTPServer(routes []server_http.Route) {
+	apiVersion1Router := server_http.NewAPIVersionRouter(server_http.APIVersion1)
 	apiVersion1Router.RegisterRoutes(routes...)
 
 	serverConfig := server_http.NewConfigMust()
@@ -20,6 +20,4 @@ func (a *App) initHTTPServer(routes []server_http.Route) error {
 	)
 	server.RegisterAPIRouters(apiVersion1Router)
 	a.server = server
-
-	return nil
 }

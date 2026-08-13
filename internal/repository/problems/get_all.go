@@ -6,7 +6,7 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-func (r *ProblemsRepository) GetAll(ctx context.Context) ([]model.Problem, error) {
+func (r *Repository) GetAll(ctx context.Context) ([]model.Problem, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
@@ -25,7 +25,7 @@ func (r *ProblemsRepository) GetAll(ctx context.Context) ([]model.Problem, error
 	for rows.Next() {
 		var pr ProblemRecord
 
-		err := rows.Scan(
+		err = rows.Scan(
 			&pr.ProblemID,
 			&pr.Name,
 			&pr.Description,
@@ -36,6 +36,7 @@ func (r *ProblemsRepository) GetAll(ctx context.Context) ([]model.Problem, error
 			return []model.Problem{}, err
 		}
 
+		//nolint:govet // problemModel is new variable
 		problemModel, err := fromProblemRecordToModel(pr)
 		if err != nil {
 			return []model.Problem{}, err
@@ -44,7 +45,7 @@ func (r *ProblemsRepository) GetAll(ctx context.Context) ([]model.Problem, error
 		problemModels = append(problemModels, problemModel)
 	}
 
-	if err := rows.Err(); err != nil {
+	if err = rows.Err(); err != nil {
 		return []model.Problem{}, err
 	}
 

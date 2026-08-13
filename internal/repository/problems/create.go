@@ -10,7 +10,7 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-func (r *ProblemsRepository) Create(ctx context.Context, problem model.Problem) (model.Problem, error) {
+func (r *Repository) Create(ctx context.Context, problem model.Problem) (model.Problem, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
@@ -32,7 +32,11 @@ func (r *ProblemsRepository) Create(ctx context.Context, problem model.Problem) 
 	); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return model.Problem{}, fmt.Errorf("problem with this name='%s' already exists: %w", problem.Name, errs.ErrAlreadyExists)
+			return model.Problem{}, fmt.Errorf(
+				"problem with this name='%s' already exists: %w",
+				problem.Name,
+				errs.ErrAlreadyExists,
+			)
 		}
 		return model.Problem{}, err
 	}

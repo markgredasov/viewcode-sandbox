@@ -17,7 +17,14 @@ type Verification struct {
 	SubmissionsCount int64
 }
 
-func NewVerification(id, problemID string, codeVal string, languageVal string, createdAt time.Time, submissionsCount int64) (Verification, error) {
+func NewVerification(
+	id,
+	problemID string,
+	codeVal string,
+	languageVal string,
+	createdAt time.Time,
+	submissionsCount int64,
+) (Verification, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return Verification{}, fmt.Errorf("parse id: %w", errs.ErrInvalidArgument)
 	}

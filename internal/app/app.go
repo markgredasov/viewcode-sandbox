@@ -45,9 +45,7 @@ func (a *App) Run() error {
 	}
 
 	a.logger.Debug("initializing HTTP server")
-	if err := a.initHTTPServer(routes); err != nil {
-		a.logger.Fatal("initialize HTTP server", zap.Error(err))
-	}
+	a.initHTTPServer(routes)
 
 	return a.server.Run(a.ctx)
 }

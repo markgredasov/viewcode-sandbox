@@ -15,7 +15,7 @@ func (s *VerificationsService) GetByProblemIDAndLanguage(ctx context.Context, pr
 		return model.Verification{}, err
 	}
 
-	if _, err := uuid.Parse(problemID); err != nil {
+	if _, err = uuid.Parse(problemID); err != nil {
 		return model.Verification{}, fmt.Errorf("invalid uuid: %w: %w", err, errs.ErrInvalidArgument)
 	}
 

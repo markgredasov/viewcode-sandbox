@@ -22,7 +22,7 @@ func main() {
 
 	if err := app.Run(); err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {
-			fmt.Println("run application: %w", err)
+			fmt.Println("run application:", err)
 		}
 	}
 }

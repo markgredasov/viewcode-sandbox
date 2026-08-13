@@ -10,8 +10,16 @@ import (
 )
 
 var languageToExecutionLanguage = map[model.Language]string{
-	model.LanguageGo:     "go",
-	model.LanguagePython: "python3",
+	model.LanguageGo:         "go",
+	model.LanguagePython:     "python3",
+	model.LanguageJava:       "java",
+	model.LanguageCpp:        "cpp",
+	model.LanguageCSharp:     "csharp",
+	model.LanguageJavaScript: "js",
+	model.LanguageTypeScript: "ts",
+	model.LanguageKotlin:     "ko",
+	model.LanguageSwift:      "sw",
+	model.LanguageRust:       "rust",
 }
 
 type Adapter struct {
@@ -29,7 +37,11 @@ func NewAdapter(config sandbox_config.Config) (*Adapter, error) {
 	}, nil
 }
 
-func (a *Adapter) RunTests(ctx context.Context, exec model.Execution, tests model.Verification) (model.Execution, error) {
+func (a *Adapter) RunTests(
+	ctx context.Context,
+	exec model.Execution,
+	tests model.Verification,
+) (model.Execution, error) {
 	language, ok := languageToExecutionLanguage[exec.Language]
 	if !ok {
 		return model.Execution{}, fmt.Errorf("invalid language: %w", errs.ErrInvalidArgument)

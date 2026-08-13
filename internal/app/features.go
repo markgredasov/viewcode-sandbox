@@ -32,7 +32,6 @@ func (a *App) initFeatures() ([]server_http.Route, error) {
 	}
 
 	return routes, nil
-
 }
 
 func (a *App) initFeatureExecutions() ([]server_http.Route, error) {

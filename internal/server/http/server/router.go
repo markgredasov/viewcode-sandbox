@@ -7,18 +7,19 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/middleware"
 )
 
-type ApiVersion string
+type APIVersion string
 
 var (
-	ApiVersion1 = ApiVersion("v1")
+	APIVersion1 = APIVersion("v1")
 )
 
 type APIVersionRouter struct {
 	*http.ServeMux
-	apiVersion ApiVersion
+
+	apiVersion APIVersion
 }
 
-func NewApiVersionRouter(apiVersion ApiVersion) *APIVersionRouter {
+func NewAPIVersionRouter(apiVersion APIVersion) *APIVersionRouter {
 	return &APIVersionRouter{
 		ServeMux:   http.NewServeMux(),
 		apiVersion: apiVersion,

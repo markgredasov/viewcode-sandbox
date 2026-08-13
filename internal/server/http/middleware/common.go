@@ -12,17 +12,21 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	loggerKey string = "logger"
+)
+
 func RequestID() Middleware {
 	return func(next http.Handler) http.Handler {
-		const RequestIDHeader = "x-request-id"
+		const requestIDHeader = "x-request-id"
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			requestID := r.Header.Get(RequestIDHeader)
+			requestID := r.Header.Get(requestIDHeader)
 			if requestID == "" {
 				requestID = uuid.NewString()
 			}
 
-			r.Header.Set(RequestIDHeader, requestID)
-			w.Header().Set(RequestIDHeader, requestID)
+			r.Header.Set(requestIDHeader, requestID)
+			w.Header().Set(requestIDHeader, requestID)
 
 			next.ServeHTTP(w, r)
 		})
@@ -31,9 +35,9 @@ func RequestID() Middleware {
 
 func Logger(l *logger.Logger) Middleware {
 	return func(next http.Handler) http.Handler {
-		const RequestIDHeader = "x-request-id"
+		const requestIDHeader = "x-request-id"
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			requestID := r.Header.Get(RequestIDHeader)
+			requestID := r.Header.Get(requestIDHeader)
 
 			logger := l.With(
 				zap.String("Request-ID", requestID),
@@ -41,7 +45,8 @@ func Logger(l *logger.Logger) Middleware {
 				zap.String("URL", r.URL.String()),
 			)
 
-			ctx := context.WithValue(r.Context(), "logger", logger)
+			//nolint:staticcheck // not needed
+			ctx := context.WithValue(r.Context(), loggerKey, logger)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

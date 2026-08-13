@@ -10,7 +10,7 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-func (r *ProblemsRepository) GetByID(ctx context.Context, id string) (model.Problem, error) {
+func (r *Repository) GetByID(ctx context.Context, id string) (model.Problem, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
