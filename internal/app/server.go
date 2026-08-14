@@ -17,7 +17,9 @@ func (a *App) initHTTPServer(routes []server_http.Route) {
 		middleware.Logger(a.logger),
 		middleware.Recovery(),
 		middleware.Trace(),
+		middleware.CORS(),
 	)
 	server.RegisterAPIRouters(apiVersion1Router)
+	server.RegisterSwagger()
 	a.server = server
 }

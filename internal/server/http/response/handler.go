@@ -24,6 +24,7 @@ func NewHTTPResponseHandler(l *logger.Logger, w http.ResponseWriter) *HTTPRespon
 }
 
 func (h *HTTPResponseHandler) JSONResponse(responseBody any, statusCode int) {
+	h.w.Header().Set("Content-Type", "application/json")
 	h.w.WriteHeader(statusCode)
 
 	if statusCode != http.StatusNoContent {
@@ -47,11 +48,14 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Info
 	case errors.Is(err, errs.ErrAlreadyExists):
-		statusCode = http.StatusBadRequest
+		statusCode = http.StatusConflict
 		logFunc = h.log.Error
 	case errors.Is(err, errs.ErrNotFound):
 		statusCode = http.StatusNotFound
 		logFunc = h.log.Info
+	case errors.Is(err, errs.ErrInvalidRequest):
+		statusCode = http.StatusBadRequest
+		logFunc = h.log.Error
 	default:
 		statusCode = http.StatusInternalServerError
 		logFunc = h.log.Error

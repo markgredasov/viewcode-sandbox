@@ -19,6 +19,10 @@ type ProblemDTOResponse struct {
 	Languages   []string  `json:"languages"`
 }
 
+type ProblemsDTOResponse struct {
+	Problems []ProblemDTOResponse `json:"problems"`
+}
+
 func fromModelToDTO(m model.Problem) ProblemDTOResponse {
 	return ProblemDTOResponse{
 		ProblemID:   m.ProblemID,
@@ -27,4 +31,16 @@ func fromModelToDTO(m model.Problem) ProblemDTOResponse {
 		CreatedAt:   m.CreatedAt,
 		Languages:   model.ConvertFrom(m.Languages),
 	}
+}
+
+func fromModelsToDTO(m []model.Problem) ProblemsDTOResponse {
+	problems := ProblemsDTOResponse{
+		Problems: make([]ProblemDTOResponse, len(m)),
+	}
+
+	for i := range m {
+		problems.Problems[i] = fromModelToDTO(m[i])
+	}
+
+	return problems
 }

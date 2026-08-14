@@ -1,0 +1,514 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "leetcode analogue by github.com/markgredasov",
+        "title": "viewcode",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "127.0.0.1:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/executions": {
+            "post": {
+                "description": "Запускает код для выбранной задачи и языка",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Executions"
+                ],
+                "summary": "Запустить код",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_executions.ExecuteDTORequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Результаты прохождения тестов",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_executions.ExecuteDTOResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при валидации запроса / создании модели исполнения",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Верификация для выбранного языка/проблемы не существует",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/problems": {
+            "get": {
+                "description": "Отдает список всех задач на viewcode со всей информацией о них.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problems"
+                ],
+                "summary": "Получить список всех задач",
+                "responses": {
+                    "200": {
+                        "description": "Список всех задач",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_problems.ProblemsDTOResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при создании модели проблемы",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Создает задачу на viewcode",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problems"
+                ],
+                "summary": "Создать задачу",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_problems.CreateProblemDTORequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Созданная задача",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_problems.ProblemDTOResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при валидации запроса",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Задача с таким названием уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/problems/{id}": {
+            "get": {
+                "description": "Отдает задачу на viewcode по ее UUID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problems"
+                ],
+                "summary": "Получить список задачи по ее UUID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Идентификатор задачи",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Задача с указанным ID",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_problems.ProblemDTOResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при создании модели проблемы / ID не был передан в запросе или имеет неправильный формат",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Задача с таким ID не была найдена",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет задачу по ее ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Problems"
+                ],
+                "summary": "Удалить задачу",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Идентификатор задачи",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Задача успешно удалена"
+                    },
+                    "400": {
+                        "description": "Ошибка при создании модели проблемы / ID не был передан в запросе или имеет неправильный формат",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Задача с таким ID не была найдена",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/verifications": {
+            "post": {
+                "description": "Создает верификацию (добавляет тесты для проблемы для выбранного языка). В теле запроса код должен быть закодирован в стандарте base64",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Verifications"
+                ],
+                "summary": "Создать верификацию",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_verifications.VerificationDTORequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Формат кодирования верификационного кода (доступен base64)",
+                        "name": "format",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Созданная верификация",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_verifications.VerificationDTOResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при валидации запроса",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Верификация для выбранной задачи и языка уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/verifications/{problem_id}": {
+            "get": {
+                "description": "Ищет верификацию по ID проблемы и выбранному языку программирования",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Verifications"
+                ],
+                "summary": "Найти верификацию по ProblemID и языку",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Язык программирования (go, py, java, cpp, js, ts, csharp, ko, sw, rust)",
+                        "name": "language",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Идентификатор задачи",
+                        "name": "problem_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Найденная верификация",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_verifications.VerificationDTOResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при валидации запроса",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Верификация для выбранного языка/проблемы не существует",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorDetails": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorDetails"
+                }
+            }
+        },
+        "internal_handler_executions.ExecuteDTORequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "problem_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler_executions.ExecuteDTOResponse": {
+            "type": "object",
+            "properties": {
+                "duration": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "stderr": {
+                    "type": "string"
+                },
+                "stdout": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler_problems.CreateProblemDTORequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler_problems.ProblemDTOResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "languages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "problem_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler_problems.ProblemsDTOResponse": {
+            "type": "object",
+            "properties": {
+                "problems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handler_problems.ProblemDTOResponse"
+                    }
+                }
+            }
+        },
+        "internal_handler_verifications.VerificationDTORequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "problem_id": {
+                    "type": "string"
+                },
+                "verification_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler_verifications.VerificationDTOResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "problem_id": {
+                    "type": "string"
+                },
+                "submissions_count": {
+                    "type": "integer"
+                },
+                "verification_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "time.Duration": {
+            "type": "integer",
+            "format": "int64",
+            "enum": [
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
+                3600000000000
+            ],
+            "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour"
+            ]
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

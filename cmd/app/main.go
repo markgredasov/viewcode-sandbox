@@ -11,6 +11,14 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/app"
 )
 
+// @title 		  viewcode
+// @version 	  1.0
+// @description   leetcode analogue by github.com/markgredasov
+// @host 		  127.0.0.1:8080
+// @BasePath 	  /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in                         header
+// @name                       Authorization
 func main() {
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),

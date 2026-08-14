@@ -1,0 +1,348 @@
+basePath: /api/v1
+definitions:
+  github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorDetails:
+    properties:
+      err:
+        type: string
+      message:
+        type: string
+    type: object
+  github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorDetails'
+    type: object
+  internal_handler_executions.ExecuteDTORequest:
+    properties:
+      code:
+        type: string
+      language:
+        type: string
+      problem_id:
+        type: string
+    type: object
+  internal_handler_executions.ExecuteDTOResponse:
+    properties:
+      duration:
+        $ref: '#/definitions/time.Duration'
+      stderr:
+        type: string
+      stdout:
+        type: string
+    type: object
+  internal_handler_problems.CreateProblemDTORequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  internal_handler_problems.ProblemDTOResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      languages:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      problem_id:
+        type: string
+    type: object
+  internal_handler_problems.ProblemsDTOResponse:
+    properties:
+      problems:
+        items:
+          $ref: '#/definitions/internal_handler_problems.ProblemDTOResponse'
+        type: array
+    type: object
+  internal_handler_verifications.VerificationDTORequest:
+    properties:
+      language:
+        type: string
+      problem_id:
+        type: string
+      verification_code:
+        type: string
+    type: object
+  internal_handler_verifications.VerificationDTOResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      language:
+        type: string
+      problem_id:
+        type: string
+      submissions_count:
+        type: integer
+      verification_code:
+        type: string
+    type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    format: int64
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+host: 127.0.0.1:8080
+info:
+  contact: {}
+  description: leetcode analogue by github.com/markgredasov
+  title: viewcode
+  version: "1.0"
+paths:
+  /executions:
+    post:
+      consumes:
+      - application/json
+      description: Запускает код для выбранной задачи и языка
+      parameters:
+      - description: Request body
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_executions.ExecuteDTORequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Результаты прохождения тестов
+          schema:
+            $ref: '#/definitions/internal_handler_executions.ExecuteDTOResponse'
+        "400":
+          description: Ошибка при валидации запроса / создании модели исполнения
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "404":
+          description: Верификация для выбранного языка/проблемы не существует
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+      summary: Запустить код
+      tags:
+      - Executions
+  /problems:
+    get:
+      description: Отдает список всех задач на viewcode со всей информацией о них.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список всех задач
+          schema:
+            $ref: '#/definitions/internal_handler_problems.ProblemsDTOResponse'
+        "400":
+          description: Ошибка при создании модели проблемы
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+      summary: Получить список всех задач
+      tags:
+      - Problems
+    post:
+      consumes:
+      - application/json
+      description: Создает задачу на viewcode
+      parameters:
+      - description: Request body
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_problems.CreateProblemDTORequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданная задача
+          schema:
+            $ref: '#/definitions/internal_handler_problems.ProblemDTOResponse'
+        "400":
+          description: Ошибка при валидации запроса
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "409":
+          description: Задача с таким названием уже существует
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+      summary: Создать задачу
+      tags:
+      - Problems
+  /problems/{id}:
+    delete:
+      description: Удаляет задачу по ее ID
+      parameters:
+      - description: Идентификатор задачи
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Задача успешно удалена
+        "400":
+          description: Ошибка при создании модели проблемы / ID не был передан в запросе
+            или имеет неправильный формат
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "404":
+          description: Задача с таким ID не была найдена
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+      summary: Удалить задачу
+      tags:
+      - Problems
+    get:
+      description: Отдает задачу на viewcode по ее UUID
+      parameters:
+      - description: Идентификатор задачи
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Задача с указанным ID
+          schema:
+            $ref: '#/definitions/internal_handler_problems.ProblemDTOResponse'
+        "400":
+          description: Ошибка при создании модели проблемы / ID не был передан в запросе
+            или имеет неправильный формат
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "404":
+          description: Задача с таким ID не была найдена
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+      summary: Получить список задачи по ее UUID
+      tags:
+      - Problems
+  /verifications:
+    post:
+      consumes:
+      - application/json
+      description: Создает верификацию (добавляет тесты для проблемы для выбранного
+        языка). В теле запроса код должен быть закодирован в стандарте base64
+      parameters:
+      - description: Request body
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_verifications.VerificationDTORequest'
+      - description: Формат кодирования верификационного кода (доступен base64)
+        in: query
+        name: format
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Созданная верификация
+          schema:
+            $ref: '#/definitions/internal_handler_verifications.VerificationDTOResponse'
+        "400":
+          description: Ошибка при валидации запроса
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "409":
+          description: Верификация для выбранной задачи и языка уже существует
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+      summary: Создать верификацию
+      tags:
+      - Verifications
+  /verifications/{problem_id}:
+    get:
+      description: Ищет верификацию по ID проблемы и выбранному языку программирования
+      parameters:
+      - description: Язык программирования (go, py, java, cpp, js, ts, csharp, ko,
+          sw, rust)
+        in: query
+        name: language
+        required: true
+        type: string
+      - description: Идентификатор задачи
+        format: uuid
+        in: path
+        name: problem_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Найденная верификация
+          schema:
+            $ref: '#/definitions/internal_handler_verifications.VerificationDTOResponse'
+        "400":
+          description: Ошибка при валидации запроса
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "404":
+          description: Верификация для выбранного языка/проблемы не существует
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse'
+      summary: Найти верификацию по ProblemID и языку
+      tags:
+      - Verifications
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

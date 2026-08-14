@@ -16,7 +16,7 @@ type TestsRunningPort interface {
 }
 
 type TestsRepository interface {
-	GetByID(ctx context.Context, problemID string) (model.Verification, error)
+	GetByProblemIDAndLanguage(ctx context.Context, problemID string, language model.Language) (model.Verification, error)
 }
 
 func NewExecutionsService(testsRunningPort TestsRunningPort, testsRepo TestsRepository) *ExecutionsService {

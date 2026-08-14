@@ -22,6 +22,18 @@ type ExecuteDTOResponse struct {
 	Duration *time.Duration `json:"duration"`
 }
 
+// Execute 		godoc
+// @Summary 	Запустить код
+// @Description Запускает код для выбранной задачи и языка
+// @Tags 		Executions
+// @Accept 		json
+// @Produce 	json
+// @Param 		RequestBody		body		ExecuteDTORequest			true	"Request body"
+// @Success		200  			{object} 	ExecuteDTOResponse		 			"Результаты прохождения тестов"
+// @Failure 	400  			{object} 	response.ErrorResponse 				"Ошибка при валидации запроса / создании модели исполнения"
+// @Failure 	404  			{object} 	response.ErrorResponse 				"Верификация для выбранного языка/проблемы не существует"
+// @Failure 	500  			{object} 	response.ErrorResponse 				"Внутренняя ошибка сервера"
+// @Router 		/executions 	[post]
 func (h *ExecutionsHTTPHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

@@ -10,6 +10,17 @@ import (
 	utils_http "github.com/markgredasov/viewcode-sandbox/internal/utils/http"
 )
 
+// GetByID godoc
+// @Summary Получить список задачи по ее UUID
+// @Description Отдает задачу на viewcode по ее UUID
+// @Tags Problems
+// @Produce json
+// @Param 	id	 path		string  true			"Идентификатор задачи" 		Format(uuid)
+// @Success 200  {object} 	ProblemDTOResponse 		"Задача с указанным ID"
+// @Failure 400  {object} 	response.ErrorResponse 	"Ошибка при создании модели проблемы / ID не был передан в запросе или имеет неправильный формат"
+// @Failure 404  {object} 	response.ErrorResponse 	"Задача с таким ID не была найдена"
+// @Failure 500  {object} 	response.ErrorResponse 	"Внутренняя ошибка сервера"
+// @Router /problems/{id} [get]
 func (h *ProblemsHTTPHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)

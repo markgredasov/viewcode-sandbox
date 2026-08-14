@@ -10,6 +10,18 @@ import (
 	utils_http "github.com/markgredasov/viewcode-sandbox/internal/utils/http"
 )
 
+// GetByProblemIDAndLanguage godoc
+// @Summary 	Найти верификацию по ProblemID и языку
+// @Description Ищет верификацию по ID проблемы и выбранному языку программирования
+// @Tags 		Verifications
+// @Produce 	json
+// @Param 		language						query		string						true	"Язык программирования (go, py, java, cpp, js, ts, csharp, ko, sw, rust)"
+// @Param 		problem_id	 					path		string  					true	"Идентификатор задачи" 		Format(uuid)
+// @Success		200  							{object} 	VerificationDTOResponse 			"Найденная верификация"
+// @Failure 	400  							{object} 	response.ErrorResponse 				"Ошибка при валидации запроса"
+// @Failure 	404  							{object} 	response.ErrorResponse 				"Верификация для выбранного языка/проблемы не существует"
+// @Failure 	500  							{object} 	response.ErrorResponse 				"Внутренняя ошибка сервера"
+// @Router 		/verifications/{problem_id} 	[get]
 func (h *VerificationsHTTPHandler) GetByProblemIDAndLanguage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)
