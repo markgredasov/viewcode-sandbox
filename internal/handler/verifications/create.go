@@ -20,6 +20,7 @@ import (
 // @Param 		format			query		string						true	"Формат кодирования верификационного кода (доступен base64)"
 // @Success		201  			{object} 	VerificationDTOResponse 			"Созданная верификация"
 // @Failure 	400  			{object} 	response.ErrorResponse 				"Ошибка при валидации запроса"
+// @Failure 	404  			{object} 	response.ErrorResponse 				"Проблема с таким ID не найдена"
 // @Failure 	409  			{object} 	response.ErrorResponse 				"Верификация для выбранной задачи и языка уже существует"
 // @Failure 	500  			{object} 	response.ErrorResponse 				"Внутренняя ошибка сервера"
 // @Router 		/verifications 	[post]

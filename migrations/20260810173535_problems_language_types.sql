@@ -48,18 +48,12 @@ AFTER DELETE ON public.code_verification
 FOR EACH ROW
 EXECUTE FUNCTION update_languages_on_tests_delete();
 
-ALTER TABLE code_verification 
-DROP CONSTRAINT fk_problem_id;
-
 ALTER TABLE code_verification
 ADD CONSTRAINT unique_problem_id_lang UNIQUE (problem_id, lang);
 
 -- +goose Down
 ALTER TABLE code_verification
 DROP CONSTRAINT unique_problem_id_lang;
-
-ALTER TABLE code_verification 
-ADD CONSTRAINT fk_problem_id UNIQUE (problem_id);
 
 DROP TRIGGER IF EXISTS trigger_update_languages_on_tests_delete ON public.code_verification;
 DROP FUNCTION update_languages_on_tests_delete();

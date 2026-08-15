@@ -26,13 +26,22 @@ func (r *CodeVerificationRepository) Create(ctx context.Context, verification mo
 	err := row.Scan(&record.ID, &record.ProblemID, &record.Code, &record.CreatedAt, &record.SubmissionsCount, &record.Language)
 	if err != nil {
 		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return model.Verification{}, fmt.Errorf(
-				"verification code for problem_id=%s and language=%s already exists: %w",
-				verification.ProblemID,
-				verification.Language,
-				errs.ErrAlreadyExists,
-			)
+		if errors.As(err, &pgErr) {
+			switch pgErr.Code {
+			case "23505":
+				return model.Verification{}, fmt.Errorf(
+					"verification code for problem_id=%s and language=%s already exists: %w",
+					verification.ProblemID,
+					verification.Language,
+					errs.ErrAlreadyExists,
+				)
+			case "23503":
+				return model.Verification{}, fmt.Errorf(
+					"problem with id=%s not found: %w",
+					verification.ProblemID,
+					errs.ErrNotFound,
+				)
+			}
 		}
 		return model.Verification{}, err
 	}

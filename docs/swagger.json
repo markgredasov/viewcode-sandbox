@@ -278,6 +278,12 @@
                             "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Проблема с таким ID не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_markgredasov_viewcode-sandbox_internal_server_http_response.ErrorResponse"
+                        }
+                    },
                     "409": {
                         "description": "Верификация для выбранной задачи и языка уже существует",
                         "schema": {
