@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -13,9 +11,8 @@ type Execution struct {
 	Code     Code
 	Tests    Verification
 
-	StdOut   *string
-	StdErr   *string
-	Duration *time.Duration
+	ExecutionResult ExecutionResult
+	TestsResult     TestsResult
 }
 
 func NewExecution(id, language, code string) (Execution, error) {
@@ -41,8 +38,6 @@ func NewExecution(id, language, code string) (Execution, error) {
 	}, nil
 }
 
-type Result struct {
-	StdOut            string
-	StdErr            string
-	ExecutionTimeInMS int
+func (e *Execution) WithTestsResult(tr TestsResult) {
+	e.TestsResult = tr
 }

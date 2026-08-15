@@ -2,25 +2,12 @@ package handler_executions
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/request"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
 )
-
-type ExecuteDTORequest struct {
-	ProblemID string `json:"problem_id"`
-	Language  string `json:"language"`
-	Code      string `json:"code"`
-}
-
-type ExecuteDTOResponse struct {
-	StdOut   *string        `json:"stdout"`
-	StdErr   *string        `json:"stderr"`
-	Duration *time.Duration `json:"duration"`
-}
 
 // Execute 		godoc
 // @Summary 	Запустить код
@@ -58,12 +45,4 @@ func (h *ExecutionsHTTPHandler) Execute(w http.ResponseWriter, r *http.Request) 
 	}
 
 	responseHandler.JSONResponse(fromModelToDTO(execution), http.StatusOK)
-}
-
-func fromModelToDTO(m model.Execution) ExecuteDTOResponse {
-	return ExecuteDTOResponse{
-		StdOut:   m.StdOut,
-		StdErr:   m.StdErr,
-		Duration: m.Duration,
-	}
 }

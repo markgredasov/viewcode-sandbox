@@ -23,12 +23,32 @@ definitions:
     type: object
   internal_handler_executions.ExecuteDTOResponse:
     properties:
+      execution:
+        $ref: '#/definitions/internal_handler_executions.ExecutionResultDTOResponse'
+      is_passed:
+        type: boolean
+      tests:
+        $ref: '#/definitions/internal_handler_executions.TestsResultDTOResponse'
+    type: object
+  internal_handler_executions.ExecutionResultDTOResponse:
+    properties:
       duration:
         $ref: '#/definitions/time.Duration'
       stderr:
         type: string
       stdout:
         type: string
+    type: object
+  internal_handler_executions.TestsResultDTOResponse:
+    properties:
+      failed_log:
+        type: string
+      passed:
+        type: integer
+      passing_duration_in_ms:
+        type: number
+      total:
+        type: integer
     type: object
   internal_handler_problems.CreateProblemDTORequest:
     properties:

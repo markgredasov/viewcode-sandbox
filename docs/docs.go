@@ -398,6 +398,20 @@ const docTemplate = `{
         "internal_handler_executions.ExecuteDTOResponse": {
             "type": "object",
             "properties": {
+                "execution": {
+                    "$ref": "#/definitions/internal_handler_executions.ExecutionResultDTOResponse"
+                },
+                "is_passed": {
+                    "type": "boolean"
+                },
+                "tests": {
+                    "$ref": "#/definitions/internal_handler_executions.TestsResultDTOResponse"
+                }
+            }
+        },
+        "internal_handler_executions.ExecutionResultDTOResponse": {
+            "type": "object",
+            "properties": {
                 "duration": {
                     "$ref": "#/definitions/time.Duration"
                 },
@@ -406,6 +420,23 @@ const docTemplate = `{
                 },
                 "stdout": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_handler_executions.TestsResultDTOResponse": {
+            "type": "object",
+            "properties": {
+                "failed_log": {
+                    "type": "string"
+                },
+                "passed": {
+                    "type": "integer"
+                },
+                "passing_duration_in_ms": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

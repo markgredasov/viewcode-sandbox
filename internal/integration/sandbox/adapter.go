@@ -61,13 +61,13 @@ func (a *Adapter) RunTests(
 		return model.Execution{}, err
 	}
 
+	executionResultModel := model.NewExecutionResult(execResult.StdOut, execResult.StdErr, execResult.Duration)
+
 	return model.Execution{
 		Language: exec.Language,
 		Code:     exec.Code,
 		Tests:    tests,
 
-		StdOut:   &execResult.StdOut,
-		StdErr:   &execResult.StdErr,
-		Duration: &execResult.Duration,
+		ExecutionResult: executionResultModel,
 	}, nil
 }
