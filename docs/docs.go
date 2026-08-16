@@ -443,6 +443,15 @@ const docTemplate = `{
         "internal_handler_problems.CreateProblemDTORequest": {
             "type": "object",
             "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "complexity": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -454,6 +463,15 @@ const docTemplate = `{
         "internal_handler_problems.ProblemDTOResponse": {
             "type": "object",
             "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "complexity": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },

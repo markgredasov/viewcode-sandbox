@@ -31,7 +31,7 @@ func (h *ProblemsHTTPHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdProblem, err := h.problemsService.Create(ctx, req.Name, req.Description)
+	createdProblem, err := h.problemsService.Create(ctx, req.Name, req.Description, req.Complexity, req.Categories)
 	if err != nil {
 		responseHandler.ErrorResponse(err, err.Error())
 		return

@@ -15,14 +15,24 @@ const (
 )
 
 type Problem struct {
-	ProblemID   string
-	Name        string
-	Description string
-	CreatedAt   time.Time
-	Languages   []Language
+	ProblemID      string
+	Name           string
+	Description    string
+	CreatedAt      time.Time
+	Languages      []Language
+	ComplexityRate Complexity
+	Categories     []Category
 }
 
-func NewProblem(problemID, name, description string, createdAt time.Time, languages []string) (Problem, error) {
+func NewProblem(
+	problemID,
+	name,
+	description string,
+	createdAt time.Time,
+	languages []string,
+	complexityRate string,
+	categories []string,
+) (Problem, error) {
 	if utf8.RuneCountInString(name) <= 0 {
 		return Problem{}, fmt.Errorf("empty problem name: %w", errs.ErrInvalidArgument)
 	}
@@ -39,17 +49,29 @@ func NewProblem(problemID, name, description string, createdAt time.Time, langua
 		return Problem{}, fmt.Errorf("description is too large: %w", errs.ErrInvalidArgument)
 	}
 
-	languageValueObjects, err := ConvertTo(languages)
+	languageValueObjects, err := ConvertToValueObjsArray(languages, NewLanguage)
 	if err != nil {
 		return Problem{}, fmt.Errorf("convert languages: %w", err)
 	}
 
+	complexityRateValueObject, err := NewComplexity(complexityRate)
+	if err != nil {
+		return Problem{}, err
+	}
+
+	categoryValueObjects, err := ConvertToValueObjsArray(categories, NewCategory)
+	if err != nil {
+		return Problem{}, fmt.Errorf("convert categories: %w", err)
+	}
+
 	return Problem{
-		ProblemID:   problemID,
-		Name:        name,
-		Description: description,
-		CreatedAt:   createdAt,
-		Languages:   languageValueObjects,
+		ProblemID:      problemID,
+		Name:           name,
+		Description:    description,
+		CreatedAt:      createdAt,
+		Languages:      languageValueObjects,
+		ComplexityRate: complexityRateValueObject,
+		Categories:     categoryValueObjects,
 	}, nil
 }
 
@@ -75,4 +97,12 @@ func NewProblemUnitialized(name, description string) (Problem, error) {
 		Name:        name,
 		Description: description,
 	}, nil
+}
+
+func (p *Problem) WithComplexityRate(complexity Complexity) {
+	p.ComplexityRate = complexity
+}
+
+func (p *Problem) WithCategories(categories []Category) {
+	p.Categories = categories
 }

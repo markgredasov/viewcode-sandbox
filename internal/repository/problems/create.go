@@ -15,12 +15,20 @@ func (r *Repository) Create(ctx context.Context, problem model.Problem) (model.P
 	defer cancel()
 
 	sqlQuery := `
-		INSERT INTO public.problems (id, name, description)
-		VALUES ($1, $2, $3)
-		RETURNING id, name, description, created_at, langs;
+		INSERT INTO public.problems (id, name, description, complexity_rate, categories)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id, name, description, created_at, langs, complexity_rate, categories;
 	`
 
-	row := r.pool.QueryRow(ctx, sqlQuery, problem.ProblemID, problem.Name, problem.Description)
+	row := r.pool.QueryRow(
+		ctx,
+		sqlQuery,
+		problem.ProblemID,
+		problem.Name,
+		problem.Description,
+		problem.ComplexityRate.String(),
+		model.ConvertFromValueObjsArray(problem.Categories),
+	)
 
 	var pr ProblemRecord
 	if err := row.Scan(
@@ -29,6 +37,8 @@ func (r *Repository) Create(ctx context.Context, problem model.Problem) (model.P
 		&pr.Description,
 		&pr.CreatedAt,
 		&pr.Languages,
+		&pr.Complexity,
+		&pr.Categories,
 	); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {

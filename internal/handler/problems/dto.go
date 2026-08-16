@@ -7,8 +7,10 @@ import (
 )
 
 type CreateProblemDTORequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Complexity  string   `json:"complexity"`
+	Categories  []string `json:"categories"`
 }
 
 type ProblemDTOResponse struct {
@@ -17,6 +19,8 @@ type ProblemDTOResponse struct {
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 	Languages   []string  `json:"languages"`
+	Complexity  string    `json:"complexity"`
+	Categories  []string  `json:"categories"`
 }
 
 type ProblemsDTOResponse struct {
@@ -29,7 +33,9 @@ func fromModelToDTO(m model.Problem) ProblemDTOResponse {
 		Name:        m.Name,
 		Description: m.Description,
 		CreatedAt:   m.CreatedAt,
-		Languages:   model.ConvertFrom(m.Languages),
+		Languages:   model.ConvertFromValueObjsArray(m.Languages),
+		Complexity:  m.ComplexityRate.String(),
+		Categories:  model.ConvertFromValueObjsArray(m.Categories),
 	}
 }
 

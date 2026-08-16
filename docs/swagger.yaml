@@ -52,6 +52,12 @@ definitions:
     type: object
   internal_handler_problems.CreateProblemDTORequest:
     properties:
+      categories:
+        items:
+          type: string
+        type: array
+      complexity:
+        type: string
       description:
         type: string
       name:
@@ -59,6 +65,12 @@ definitions:
     type: object
   internal_handler_problems.ProblemDTOResponse:
     properties:
+      categories:
+        items:
+          type: string
+        type: array
+      complexity:
+        type: string
       created_at:
         type: string
       description:

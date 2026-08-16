@@ -11,7 +11,7 @@ func (r *Repository) GetAll(ctx context.Context) ([]model.Problem, error) {
 	defer cancel()
 
 	sqlQuery := `
-		SELECT id, name, description, created_at, langs
+		SELECT id, name, description, created_at, langs, complexity_rate, categories
 		FROM problems;
 	`
 
@@ -31,6 +31,8 @@ func (r *Repository) GetAll(ctx context.Context) ([]model.Problem, error) {
 			&pr.Description,
 			&pr.CreatedAt,
 			&pr.Languages,
+			&pr.Complexity,
+			&pr.Categories,
 		)
 		if err != nil {
 			return []model.Problem{}, err

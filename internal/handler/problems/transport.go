@@ -13,7 +13,7 @@ type ProblemsHTTPHandler struct {
 }
 
 type ProblemsService interface {
-	Create(ctx context.Context, name, description string) (model.Problem, error)
+	Create(ctx context.Context, name, description, complexity string, categories []string) (model.Problem, error)
 	GetAll(ctx context.Context) ([]model.Problem, error)
 	GetByID(ctx context.Context, id string) (model.Problem, error)
 	Delete(ctx context.Context, id string) error

@@ -12,6 +12,8 @@ type ProblemRecord struct {
 	Description string
 	CreatedAt   time.Time
 	Languages   []string
+	Complexity  string
+	Categories  []string
 }
 
 func fromProblemRecordToModel(pr ProblemRecord) (model.Problem, error) {
@@ -21,6 +23,8 @@ func fromProblemRecordToModel(pr ProblemRecord) (model.Problem, error) {
 		pr.Description,
 		pr.CreatedAt,
 		pr.Languages,
+		pr.Complexity,
+		pr.Categories,
 	)
 	if err != nil {
 		return model.Problem{}, err

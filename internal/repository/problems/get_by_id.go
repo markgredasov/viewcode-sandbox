@@ -15,7 +15,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (model.Problem, err
 	defer cancel()
 
 	sqlQuery := `
-		SELECT id, name, description, created_at, langs
+		SELECT id, name, description, created_at, langs, complexity_rate, categories
 		FROM problems
 		WHERE id = $1;
 	`
@@ -23,7 +23,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (model.Problem, err
 	row := r.pool.QueryRow(ctx, sqlQuery, id)
 
 	var pr ProblemRecord
-	if err := row.Scan(&pr.ProblemID, &pr.Name, &pr.Description, &pr.CreatedAt, &pr.Languages); err != nil {
+	if err := row.Scan(&pr.ProblemID, &pr.Name, &pr.Description, &pr.CreatedAt, &pr.Languages, &pr.Complexity, &pr.Categories); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Problem{}, fmt.Errorf("problem not found: %w", errs.ErrNotFound)
 		}
