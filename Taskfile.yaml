@@ -35,7 +35,6 @@ tasks:
   lint:
     deps: [ install-golangci-lint ]
     cmds:
-      - goimports -w .
       - '{{.GOLANGCI_LINT}} run ./... --config=.golangci.yml'
 
   run:

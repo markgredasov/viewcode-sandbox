@@ -10,7 +10,7 @@ type Complexity string
 
 const (
 	ComplexityEasy   = Complexity("easy")
-	ComplexityMiddle = Complexity("middle")
+	ComplexityMedium = Complexity("medium")
 	ComplexityHard   = Complexity("hard")
 )
 
@@ -29,7 +29,7 @@ func (c Complexity) String() string {
 
 func (c Complexity) IsValid() bool {
 	switch c {
-	case ComplexityEasy, ComplexityMiddle, ComplexityHard:
+	case ComplexityEasy, ComplexityMedium, ComplexityHard:
 		return true
 	}
 

@@ -3,10 +3,11 @@ package problems
 import (
 	"context"
 
+	query_builder "github.com/markgredasov/viewcode-sandbox/internal/database/postgres/query"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-func (r *Repository) GetAll(ctx context.Context) ([]model.Problem, error) {
+func (r *Repository) GetAll(ctx context.Context, complexity string, categories []string) ([]model.Problem, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
@@ -15,7 +16,13 @@ func (r *Repository) GetAll(ctx context.Context) ([]model.Problem, error) {
 		FROM problems;
 	`
 
-	rows, err := r.pool.Query(ctx, sqlQuery)
+	qb := query_builder.New(sqlQuery)
+	qb.AddString("complexity_rate", complexity)
+	qb.AddTypeArray("categories", categories, "category")
+
+	sqlQuery, args := qb.Get()
+
+	rows, err := r.pool.Query(ctx, sqlQuery, args...)
 	if err != nil {
 		return []model.Problem{}, err
 	}

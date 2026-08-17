@@ -77,6 +77,20 @@ const docTemplate = `{
                     "Problems"
                 ],
                 "summary": "Получить список всех задач",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Уровень сложности задач (easy, medium, hard)",
+                        "name": "complexity",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Категории задач (i.e. array)",
+                        "name": "categories",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Список всех задач",
