@@ -56,6 +56,9 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	case errors.Is(err, errs.ErrInvalidRequest):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Error
+	case errors.Is(err, errs.ErrNotImplemented):
+		statusCode = http.StatusNotImplemented
+		logFunc = h.log.Error
 	default:
 		statusCode = http.StatusInternalServerError
 		logFunc = h.log.Error
