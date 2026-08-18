@@ -2,9 +2,7 @@ package service_executions
 
 import (
 	"context"
-	"fmt"
 
-	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
@@ -16,36 +14,13 @@ func (s *ExecutionsService) Execute(ctx context.Context, exec model.Execution) (
 		return model.Execution{}, err
 	}
 
-	var execution model.Execution
+	execution, err := s.testsRunningPort.RunTests(ctx, exec, tests)
+	if err != nil {
+		return model.Execution{}, err
+	}
 
-	switch exec.Language {
-	case model.LanguageGo:
-		//nolint:govet // not needed
-		executionGo, err := s.executeLanguageGo(ctx, exec, tests)
-		if err != nil {
-			return model.Execution{}, err
-		}
-		execution = executionGo
-	case model.LanguagePython:
-		fallthrough
-	case model.LanguageJava:
-		fallthrough
-	case model.LanguageCpp:
-		fallthrough
-	case model.LanguageJavaScript:
-		fallthrough
-	case model.LanguageTypeScript:
-		fallthrough
-	case model.LanguageCSharp:
-		fallthrough
-	case model.LanguageKotlin:
-		fallthrough
-	case model.LanguageSwift:
-		fallthrough
-	case model.LanguageRust:
-		fallthrough
-	default:
-		return model.Execution{}, fmt.Errorf("language not provided yet: %w", errs.ErrNotImplemented)
+	if err = execution.ConvertStdOutToTestResults(); err != nil {
+		return model.Execution{}, err
 	}
 
 	return execution, nil

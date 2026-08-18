@@ -9,7 +9,7 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-var languageToExecutionLanguage = map[model.Language]string{
+var languageModelToExecutionLanguage = map[model.Language]string{
 	model.LanguageGo:         "go",
 	model.LanguagePython:     "python3",
 	model.LanguageJava:       "java",
@@ -20,6 +20,19 @@ var languageToExecutionLanguage = map[model.Language]string{
 	model.LanguageKotlin:     "ko",
 	model.LanguageSwift:      "sw",
 	model.LanguageRust:       "rust",
+}
+
+var executionLanguageToLanguageModel = map[string]model.Language{
+	"go":      model.LanguageGo,
+	"python3": model.LanguagePython,
+	"java":    model.LanguageJava,
+	"cpp":     model.LanguageCpp,
+	"csharp":  model.LanguageCSharp,
+	"js":      model.LanguageJavaScript,
+	"ts":      model.LanguageTypeScript,
+	"ko":      model.LanguageKotlin,
+	"sw":      model.LanguageSwift,
+	"rust":    model.LanguageRust,
 }
 
 type Adapter struct {
@@ -42,7 +55,7 @@ func (a *Adapter) RunTests(
 	exec model.Execution,
 	tests model.Verification,
 ) (model.Execution, error) {
-	language, ok := languageToExecutionLanguage[exec.Language]
+	language, ok := languageModelToExecutionLanguage[exec.Language]
 	if !ok {
 		return model.Execution{}, fmt.Errorf("invalid language: %w", errs.ErrInvalidArgument)
 	}
