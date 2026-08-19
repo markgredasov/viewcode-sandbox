@@ -2,13 +2,13 @@ package model
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
-	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
+	utils_string "github.com/markgredasov/viewcode-sandbox/internal/utils/string"
 )
 
 type Execution struct {
@@ -52,9 +52,17 @@ func (e *Execution) WithTestsResult(tr TestsResult) {
 func (e *Execution) ConvertStdOutToTestResults() error {
 	switch e.Language {
 	case LanguageGo:
-		e.WithTestsResult(getTestsResultFromStdOut(e.ExecutionResult.StdOut))
+		testsResult, err := getTestsResultFromStdOutLanguageGo(e.ExecutionResult.StdOut)
+		if err != nil {
+			return err
+		}
+		e.WithTestsResult(testsResult)
 	case LanguagePython:
-
+		testsResult, err := getTestsResultFromStdOutLanguagePython(e.ExecutionResult.StdOut)
+		if err != nil {
+			return err
+		}
+		e.WithTestsResult(testsResult)
 	case LanguageJava:
 		fallthrough
 	case LanguageCpp:
@@ -78,7 +86,43 @@ func (e *Execution) ConvertStdOutToTestResults() error {
 	return nil
 }
 
-func getTestsResultFromStdOut(stdOut string) TestsResult {
+func getTestsResultFromStdOutLanguagePython(stdOut string) (TestsResult, error) {
+	scanner := bufio.NewScanner(strings.NewReader(stdOut))
+
+	lastLine := ""
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if line != "" {
+			lastLine = line
+		}
+	}
+
+	testsFailed, err := utils_string.ParseRegexpToInt64(lastLine, `(\d+)\s+failed`)
+	if err != nil {
+		//nolint:govet // will change this later
+		if !errors.As(err, &errs.ErrNotFound) {
+			return TestsResult{}, fmt.Errorf("testsFailed: %w", err)
+		}
+	}
+
+	testsPassed, err := utils_string.ParseRegexpToInt64(lastLine, `(\d+)\s+passed`)
+	if err != nil {
+		return TestsResult{}, fmt.Errorf("testsPassed: %w", err)
+	}
+
+	testsCount := testsPassed + testsFailed
+
+	duration, err := parseDuration(lastLine)
+	if err != nil {
+		return TestsResult{}, fmt.Errorf("duration: %w", err)
+	}
+
+	return NewTestsResult(testsCount, testsPassed, "", duration), nil
+}
+
+func getTestsResultFromStdOutLanguageGo(stdOut string) (TestsResult, error) {
 	scanner := bufio.NewScanner(strings.NewReader(stdOut))
 
 	var testsCount int64 = 0
@@ -106,23 +150,21 @@ func getTestsResultFromStdOut(stdOut string) TestsResult {
 		}
 	}
 
-	duration := parseDuration(lastLine)
-
-	return NewTestsResult(testsCount, testsPassed, "", duration)
-}
-
-func parseDuration(line string) float64 {
-	re := regexp.MustCompile(`(\d+\.?\d*)s`)
-	matches := re.FindStringSubmatch(line)
-
-	if len(matches) > 1 {
-		durationInSec, err := strconv.ParseFloat(matches[1], 64)
-		if err == nil {
-			//nolint:mnd // not a magic number
-			durationInMS := durationInSec * 1_000
-			return durationInMS
-		}
+	duration, err := parseDuration(lastLine)
+	if err != nil {
+		return TestsResult{}, err
 	}
 
-	return 0.0
+	return NewTestsResult(testsCount, testsPassed, "", duration), nil
+}
+
+func parseDuration(line string) (float64, error) {
+	durationInSec, err := utils_string.ParseRegexpToFloat64(line, `(\d+\.?\d*)s`)
+	if err != nil {
+		return 0.0, err
+	}
+
+	//nolint:mnd // not a magic number
+	durationInMS := durationInSec * 1_000
+	return durationInMS, nil
 }
