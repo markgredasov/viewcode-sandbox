@@ -1,8 +1,6 @@
 package handler_executions
 
 import (
-	"time"
-
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
@@ -26,16 +24,16 @@ type TestsResultDTOResponse struct {
 }
 
 type ExecutionResultDTOResponse struct {
-	StdOut   string        `json:"stdout"`
-	StdErr   string        `json:"stderr"`
-	Duration time.Duration `json:"duration"`
+	StdOut   string `json:"stdout"`
+	StdErr   string `json:"stderr"`
+	Duration string `json:"duration"`
 }
 
 func fromModelToDTO(m model.Execution) ExecuteDTOResponse {
 	executionInfo := ExecutionResultDTOResponse{
 		StdOut:   m.ExecutionResult.StdOut,
 		StdErr:   m.ExecutionResult.StdErr,
-		Duration: m.ExecutionResult.Duration,
+		Duration: m.ExecutionResult.Duration.String(),
 	}
 
 	testsInfo := TestsResultDTOResponse{

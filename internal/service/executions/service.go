@@ -9,6 +9,7 @@ import (
 type ExecutionsService struct {
 	testsRunningPort TestsRunningPort
 	testsRepo        TestsRepository
+	parserPort       ParserPort
 }
 
 type TestsRunningPort interface {
@@ -19,9 +20,14 @@ type TestsRepository interface {
 	GetByProblemIDAndLanguage(ctx context.Context, problemID string, language model.Language) (model.Verification, error)
 }
 
-func NewExecutionsService(testsRunningPort TestsRunningPort, testsRepo TestsRepository) *ExecutionsService {
+type ParserPort interface {
+	Parse(language model.Language, stdOut string) (model.TestsResult, error)
+}
+
+func NewExecutionsService(testsRunningPort TestsRunningPort, testsRepo TestsRepository, parserPort ParserPort) *ExecutionsService {
 	return &ExecutionsService{
 		testsRunningPort: testsRunningPort,
 		testsRepo:        testsRepo,
+		parserPort:       parserPort,
 	}
 }

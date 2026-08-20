@@ -10,6 +10,7 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/repository/verifications"
 	server_http "github.com/markgredasov/viewcode-sandbox/internal/server/http/server"
 	service_executions "github.com/markgredasov/viewcode-sandbox/internal/service/executions"
+	"github.com/markgredasov/viewcode-sandbox/internal/service/executions/parser"
 	service_problems "github.com/markgredasov/viewcode-sandbox/internal/service/problems"
 	service_verifications "github.com/markgredasov/viewcode-sandbox/internal/service/verifications"
 )
@@ -35,14 +36,19 @@ func (a *App) initFeatures() ([]server_http.Route, error) {
 }
 
 func (a *App) initFeatureExecutions() ([]server_http.Route, error) {
-	adapterConfig := sandbox_config.NewConfigMust()
-	adapter, err := sandbox.NewAdapter(adapterConfig)
+	adapterSandboxConfig := sandbox_config.NewConfigMust()
+	adapterSandbox, err := sandbox.NewAdapter(adapterSandboxConfig)
+	if err != nil {
+		return []server_http.Route{}, err
+	}
+
+	adapterTestsResult, err := parser.NewAdapter()
 	if err != nil {
 		return []server_http.Route{}, err
 	}
 
 	repository := verifications.NewCodeVerificationRepository(a.pool)
-	service := service_executions.NewExecutionsService(adapter, repository)
+	service := service_executions.NewExecutionsService(adapterSandbox, repository, adapterTestsResult)
 	handler := handler_executions.NewExecutionsHTTPHandler(service)
 
 	return handler.Routes(), nil

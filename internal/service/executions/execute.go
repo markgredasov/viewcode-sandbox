@@ -19,9 +19,12 @@ func (s *ExecutionsService) Execute(ctx context.Context, exec model.Execution) (
 		return model.Execution{}, err
 	}
 
-	if err = execution.ConvertStdOutToTestResults(); err != nil {
+	testsResult, err := s.parserPort.Parse(execution.Language, execution.ExecutionResult.StdOut)
+	if err != nil {
 		return model.Execution{}, err
 	}
+
+	execution.WithTestsResult(testsResult)
 
 	return execution, nil
 }
