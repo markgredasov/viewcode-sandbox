@@ -520,6 +520,9 @@ const docTemplate = `{
         "internal_handler_verifications.VerificationDTORequest": {
             "type": "object",
             "properties": {
+                "code_template": {
+                    "type": "string"
+                },
                 "language": {
                     "type": "string"
                 },
@@ -534,6 +537,9 @@ const docTemplate = `{
         "internal_handler_verifications.VerificationDTOResponse": {
             "type": "object",
             "properties": {
+                "code_template": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },

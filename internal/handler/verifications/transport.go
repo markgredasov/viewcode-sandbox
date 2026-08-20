@@ -13,7 +13,7 @@ type VerificationsHTTPHandler struct {
 }
 
 type VerificationsService interface {
-	Create(ctx context.Context, verification model.Verification, format *string) (model.Verification, error)
+	Create(ctx context.Context, verification model.Verification, format *string, codeTemplate *string) (model.Verification, error)
 	GetByProblemIDAndLanguage(ctx context.Context, problemID, language string) (model.Verification, error)
 }
 

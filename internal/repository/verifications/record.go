@@ -13,10 +13,11 @@ type VerificationRecord struct {
 	Language         string
 	CreatedAt        time.Time
 	SubmissionsCount int64
+	CodeTemplate     *string
 }
 
 func fromRecordToModel(r VerificationRecord) (model.Verification, error) {
-	return model.NewVerification(
+	verificationModel, err := model.NewVerification(
 		r.ID,
 		r.ProblemID,
 		r.Code,
@@ -24,4 +25,13 @@ func fromRecordToModel(r VerificationRecord) (model.Verification, error) {
 		r.CreatedAt,
 		r.SubmissionsCount,
 	)
+	if err != nil {
+		return model.Verification{}, err
+	}
+
+	if err = verificationModel.WithCodeTemplate(r.CodeTemplate); err != nil {
+		return model.Verification{}, err
+	}
+
+	return verificationModel, nil
 }

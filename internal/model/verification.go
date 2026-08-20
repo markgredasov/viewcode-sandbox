@@ -3,9 +3,14 @@ package model
 import (
 	"fmt"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
+)
+
+const (
+	maxCodeTemplateLength = 1_000
 )
 
 type Verification struct {
@@ -15,6 +20,7 @@ type Verification struct {
 	Language         Language
 	CreatedAt        time.Time
 	SubmissionsCount int64
+	CodeTemplate     *Code
 }
 
 func NewVerification(
@@ -84,4 +90,23 @@ func NewVerificationByCodeValue(codeVal string) (Verification, error) {
 	return Verification{
 		Code: code,
 	}, nil
+}
+
+func (v *Verification) WithCodeTemplate(c *string) error {
+	if c == nil {
+		return nil
+	}
+
+	codeTemplate, err := NewCode(*c)
+	if err != nil {
+		return err
+	}
+
+	if utf8.RuneCountInString(codeTemplate.String()) > maxCodeTemplateLength {
+		return fmt.Errorf("code template is too large: %s: %w", codeTemplate.String(), errs.ErrInvalidArgument)
+	}
+
+	v.CodeTemplate = &codeTemplate
+
+	return nil
 }

@@ -7,9 +7,10 @@ import (
 )
 
 type VerificationDTORequest struct {
-	ProblemID string `json:"problem_id"`
-	Code      string `json:"verification_code"`
-	Language  string `json:"language"`
+	ProblemID    string  `json:"problem_id"`
+	Code         string  `json:"verification_code"`
+	Language     string  `json:"language"`
+	CodeTemplate *string `json:"code_template"`
 }
 
 type VerificationDTOResponse struct {
@@ -19,9 +20,11 @@ type VerificationDTOResponse struct {
 	Language         string    `json:"language"`
 	CreatedAt        time.Time `json:"created_at"`
 	SubmissionsCount int64     `json:"submissions_count"`
+	CodeTemplate     *string   `json:"code_template"`
 }
 
 func fromModelToDTO(m model.Verification) VerificationDTOResponse {
+	codeTemplate := m.CodeTemplate.String()
 	return VerificationDTOResponse{
 		ID:               m.ID,
 		ProblemID:        m.ProblemID,
@@ -29,5 +32,6 @@ func fromModelToDTO(m model.Verification) VerificationDTOResponse {
 		Language:         m.Language.String(),
 		CreatedAt:        m.CreatedAt,
 		SubmissionsCount: m.SubmissionsCount,
+		CodeTemplate:     &codeTemplate,
 	}
 }

@@ -8,9 +8,6 @@ ALTER TABLE public.code_verification
 ADD COLUMN lang available_languages NOT NULL;
 
 ALTER TABLE public.code_verification
-DROP CONSTRAINT code_verification_problem_id_key;
-
-ALTER TABLE public.code_verification
 ADD CONSTRAINT fk_problem_id
 FOREIGN KEY (problem_id) REFERENCES public.problems(id) ON DELETE CASCADE;
 
@@ -66,9 +63,6 @@ DROP FUNCTION update_languages_on_tests_insert();
 
 ALTER TABLE public.code_verification
 DROP CONSTRAINT fk_problem_id;
-
-ALTER TABLE public.code_verification
-ADD CONSTRAINT code_verification_problem_id_key UNIQUE(problem_id);
 
 ALTER TABLE public.code_verification
 DROP COLUMN lang; 

@@ -6,7 +6,13 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-func (s *ProblemsService) Create(ctx context.Context, name, description, complexity string, categories []string) (model.Problem, error) {
+func (s *ProblemsService) Create(
+	ctx context.Context,
+	name string,
+	description string,
+	complexity string,
+	categories []string,
+) (model.Problem, error) {
 	problem, err := model.NewProblemUnitialized(name, description)
 	if err != nil {
 		return model.Problem{}, err

@@ -15,7 +15,7 @@ func (r *CodeVerificationRepository) GetByProblemIDAndLanguage(ctx context.Conte
 	defer cancel()
 
 	sqlQuery := `
-		SELECT id, problem_id, tests_code, created_at, submissions_count, lang
+		SELECT id, problem_id, tests_code, created_at, submissions_count, lang, code_template
 		FROM public.code_verification
 		WHERE problem_id=$1 AND lang=$2;
 	`
@@ -23,7 +23,16 @@ func (r *CodeVerificationRepository) GetByProblemIDAndLanguage(ctx context.Conte
 	row := r.pool.QueryRow(ctx, sqlQuery, problemID, language.String())
 
 	var record VerificationRecord
-	if err := row.Scan(&record.ID, &record.ProblemID, &record.Code, &record.CreatedAt, &record.SubmissionsCount, &record.Language); err != nil {
+	err := row.Scan(
+		&record.ID,
+		&record.ProblemID,
+		&record.Code,
+		&record.CreatedAt,
+		&record.SubmissionsCount,
+		&record.Language,
+		&record.CodeTemplate,
+	)
+	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.Verification{}, fmt.Errorf(
 				"no verifications for problem_id=%s and language=%s found: %w",

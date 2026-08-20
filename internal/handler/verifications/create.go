@@ -43,7 +43,7 @@ func (h *VerificationsHTTPHandler) Create(w http.ResponseWriter, r *http.Request
 
 	format := utils_http.GetStringQueryParam(r, "format")
 
-	createdVerification, err := h.verificationsService.Create(ctx, verificationFromRequest, format)
+	createdVerification, err := h.verificationsService.Create(ctx, verificationFromRequest, format, req.CodeTemplate)
 	if err != nil {
 		responseHandler.ErrorResponse(err, err.Error())
 		return

@@ -93,6 +93,8 @@ definitions:
     type: object
   internal_handler_verifications.VerificationDTORequest:
     properties:
+      code_template:
+        type: string
       language:
         type: string
       problem_id:
@@ -102,6 +104,8 @@ definitions:
     type: object
   internal_handler_verifications.VerificationDTOResponse:
     properties:
+      code_template:
+        type: string
       created_at:
         type: string
       id:

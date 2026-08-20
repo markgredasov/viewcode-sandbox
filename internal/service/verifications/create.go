@@ -10,9 +10,15 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-func (s *VerificationsService) Create(ctx context.Context, verification model.Verification, format *string) (model.Verification, error) {
+func (s *VerificationsService) Create(ctx context.Context, verification model.Verification, format, codeTemplate *string) (model.Verification, error) {
 	if format == nil {
 		return model.Verification{}, fmt.Errorf("no format provided: %w", errs.ErrInvalidArgument)
+	}
+
+	if codeTemplate != nil {
+		if err := verification.WithCodeTemplate(codeTemplate); err != nil {
+			return model.Verification{}, err
+		}
 	}
 
 	formatStr := *format
@@ -31,6 +37,10 @@ func (s *VerificationsService) Create(ctx context.Context, verification model.Ve
 		}
 
 		verification.Code = decoded
+
+		if verification.CodeTemplate != nil {
+			return s.verificationsRepository.CreateWithCodeTemplate(ctx, verification)
+		}
 
 		return s.verificationsRepository.Create(ctx, verification)
 	default:
