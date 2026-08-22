@@ -12,6 +12,9 @@ type Config struct {
 	DockerNetwork        string        `envconfig:"NETWORK" required:"true"`
 	ContainerMemory      int64         `envconfig:"MEMORY_IN_MB" required:"true"`
 	ContainerExecTimeout time.Duration `envconfig:"EXEC_TIMEOUT" required:"true"`
+
+	ConfigLanguagesFilepath string `envconfig:"CONFIG_LANGUAGES_FILEPATH"`
+	ConfigLanguages         LanguagesConfig
 }
 
 func newConfig() (Config, error) {
@@ -20,6 +23,12 @@ func newConfig() (Config, error) {
 	if err := envconfig.Process("SANDBOX_DOCKER", &config); err != nil {
 		return Config{}, err
 	}
+
+	languagesConfig, err := newLanguagesConfig(config.ConfigLanguagesFilepath)
+	if err != nil {
+		return Config{}, err
+	}
+	config.ConfigLanguages = languagesConfig
 
 	return config, nil
 }

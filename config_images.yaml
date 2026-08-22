@@ -1,0 +1,8 @@
+languages:
+  go:
+    image: 'golang:latest'
+    cmd: ['go', 'test', '-v']
+  py:
+    image: 'python-pytest:3.10.21-alpine3.24'
+    cmd: ['pytest', '-v']
+    

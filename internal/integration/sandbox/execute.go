@@ -178,41 +178,17 @@ func (s *sandbox) cleanupContainer(ctx context.Context, containerID string) {
 }
 
 func (s *sandbox) getImageAndCmd(language string) (string, []string, error) {
-	image, cmd := "", []string{}
-
 	languageModel, ok := executionLanguageToLanguageModel[language]
 	if !ok {
-		return image, cmd, fmt.Errorf("invalid language: %s: %w", language, errs.ErrInvalidArgument)
+		return "", []string{}, fmt.Errorf("invalid language: %s: %w", language, errs.ErrInvalidArgument)
 	}
 
-	switch languageModel {
-	case model.LanguageGo:
-		image = "golang:latest"
-		cmd = []string{"go", "test", "-v"}
-	case model.LanguagePython:
-		image = "python-pytest:3.10.21-alpine3.24"
-		cmd = []string{"pytest", "-v"}
-	case model.LanguageJava:
-		fallthrough
-	case model.LanguageCpp:
-		fallthrough
-	case model.LanguageJavaScript:
-		fallthrough
-	case model.LanguageTypeScript:
-		fallthrough
-	case model.LanguageCSharp:
-		fallthrough
-	case model.LanguageKotlin:
-		fallthrough
-	case model.LanguageSwift:
-		fallthrough
-	case model.LanguageRust:
-		fallthrough
-	default:
-		return image, cmd, fmt.Errorf("invalid language: %w", errs.ErrInvalidArgument)
+	languageConfig, ok := s.config.ConfigLanguages.Languages[languageModel.String()]
+	if !ok {
+		return "", []string{}, fmt.Errorf("invalid language: %s: %w", language, errs.ErrInvalidArgument)
 	}
 
-	return image, cmd, nil
+	return languageConfig.Image, languageConfig.Cmd, nil
 }
 
 func memoryToBytes(memoryInMB int64) int64 {
