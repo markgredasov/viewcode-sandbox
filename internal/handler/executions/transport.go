@@ -16,8 +16,8 @@ type ExecutionsService interface {
 	Execute(ctx context.Context, exec model.Execution) (model.Execution, error)
 }
 
-func NewExecutionsHTTPHandler(executionsService ExecutionsService) ExecutionsHTTPHandler {
-	return ExecutionsHTTPHandler{
+func NewExecutionsHTTPHandler(executionsService ExecutionsService) *ExecutionsHTTPHandler {
+	return &ExecutionsHTTPHandler{
 		executionsService: executionsService,
 	}
 }

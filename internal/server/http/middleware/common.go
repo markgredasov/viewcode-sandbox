@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"time"
 
@@ -9,10 +8,6 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
 	"go.uber.org/zap"
-)
-
-var (
-	loggerKey string = "logger"
 )
 
 func RequestID() Middleware {
@@ -38,14 +33,13 @@ func Logger(l *logger.Logger) Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestID := r.Header.Get(requestIDHeader)
 
-			logger := l.With(
+			l = l.With(
 				zap.String("Request-ID", requestID),
 				zap.String("Method", r.Method),
 				zap.String("URL", r.URL.String()),
 			)
 
-			//nolint:staticcheck // not needed
-			ctx := context.WithValue(r.Context(), loggerKey, logger)
+			ctx := l.InContext(r.Context())
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

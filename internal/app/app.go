@@ -2,55 +2,74 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"os"
+	"net/http"
+	"time"
 
-	database_postgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
+	"github.com/markgredasov/viewcode-sandbox/internal/app/closer"
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	"github.com/markgredasov/viewcode-sandbox/internal/server/http/middleware"
 	server_http "github.com/markgredasov/viewcode-sandbox/internal/server/http/server"
-	"go.uber.org/zap"
 )
 
 type App struct {
-	ctx        context.Context
-	cancelFunc context.CancelFunc
-	logger     *logger.Logger
-	server     *server_http.HTTPServer
-	pool       *database_postgres.ConnectionPool
+	server      *server_http.HTTPServer
+	diContainer *diContainer
 }
 
-func NewApp(ctx context.Context, cancelFunc context.CancelFunc) *App {
-	return &App{
-		ctx:        ctx,
-		cancelFunc: cancelFunc,
+func New(ctx context.Context) *App {
+	a := &App{
+		diContainer: newDIContainer(),
+	}
+
+	a.initDeps(ctx)
+
+	return a
+}
+
+func (a *App) initDeps(ctx context.Context) {
+	inits := []func(context.Context){
+		a.diContainer.initPool,
+		a.initHTTPServer,
+	}
+
+	for _, fn := range inits {
+		fn(ctx)
 	}
 }
 
-func (a *App) Run() error {
-	if err := a.initLogger(); err != nil {
-		//nolint:forbidigo // logger was not initialized to write here smth
-		fmt.Println("failed to initialize logger:", err)
-		os.Exit(1)
+func (a *App) Run(ctx context.Context) {
+	if err := a.server.Run(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		fmt.Println("run application:", err)
 	}
 
-	a.logger.Debug("initializing connection pool")
-	if err := a.initPostgresPool(); err != nil {
-		a.logger.Fatal("initialize pool", zap.Error(err))
+	closerCtx, closerCancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second) //nolint:mnd // todo
+	defer closerCancel()
+
+	if err := closer.CloseAll(closerCtx); err != nil {
+		fmt.Println("failed to close deps:", err)
 	}
-
-	a.logger.Debug("initializing features")
-	routes, err := a.initFeatures()
-	if err != nil {
-		a.logger.Fatal("initialize features", zap.Error(err))
-	}
-
-	a.logger.Debug("initializing HTTP server")
-	a.initHTTPServer(routes)
-
-	return a.server.Run(a.ctx)
 }
 
-func (a *App) Close() {
-	a.pool.Close()
-	a.logger.Close()
+func (a *App) initHTTPServer(ctx context.Context) {
+	apiVersion1Router := server_http.NewAPIVersionRouter(server_http.APIVersion1)
+	apiVersion1Router.RegisterRoutes(a.diContainer.Routes()...)
+
+	log := logger.FromContext(ctx)
+
+	serverConfig := server_http.NewConfigMust()
+	server := server_http.NewHTTPServer(
+		serverConfig,
+		log,
+		middleware.RequestID(),
+		middleware.Logger(log),
+		middleware.Recovery(),
+		middleware.Trace(),
+		middleware.CORS(),
+	)
+
+	server.RegisterAPIRouters(apiVersion1Router)
+	server.RegisterSwagger()
+	a.server = server
 }

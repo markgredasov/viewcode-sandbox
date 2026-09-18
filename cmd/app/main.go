@@ -2,13 +2,12 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"net/http"
 	"os/signal"
 	"syscall"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/app"
+	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 )
 
 // @title 		  viewcode
@@ -26,11 +25,14 @@ func main() {
 	)
 	defer cancel()
 
-	app := app.NewApp(ctx, cancel)
-
-	if err := app.Run(); err != nil {
-		if !errors.Is(err, http.ErrServerClosed) {
-			fmt.Println("run application:", err)
-		}
+	logConfig := logger.NewConfigMust()
+	log, err := logger.NewLogger(logConfig)
+	if err != nil {
+		fmt.Println("failed to initialize logger:", err)
+		return
 	}
+
+	ctx = log.InContext(ctx)
+
+	app.New(ctx).Run(ctx)
 }
