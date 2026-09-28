@@ -14,13 +14,13 @@ const (
 )
 
 type Verification struct {
-	ID               string
-	ProblemID        string
-	Code             Code
-	Language         Language
-	CreatedAt        time.Time
-	SubmissionsCount int64
-	CodeTemplate     *Code
+	ID           string
+	ProblemID    string
+	Code         Code
+	Language     Language
+	CreatedAt    time.Time
+	TestsNumber  int
+	CodeTemplate *Code
 }
 
 func NewVerification(
@@ -29,7 +29,7 @@ func NewVerification(
 	codeVal string,
 	languageVal string,
 	createdAt time.Time,
-	submissionsCount int64,
+	testsNumber int,
 ) (Verification, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return Verification{}, fmt.Errorf("parse id: %w", errs.ErrInvalidArgument)
@@ -50,16 +50,16 @@ func NewVerification(
 	}
 
 	return Verification{
-		ID:               id,
-		ProblemID:        problemID,
-		Code:             code,
-		Language:         language,
-		CreatedAt:        createdAt,
-		SubmissionsCount: submissionsCount,
+		ID:          id,
+		ProblemID:   problemID,
+		Code:        code,
+		Language:    language,
+		CreatedAt:   createdAt,
+		TestsNumber: testsNumber,
 	}, nil
 }
 
-func NewVerificationUnitialized(problemID, codeVal, languageVal string) (Verification, error) {
+func NewVerificationUnitialized(problemID, codeVal, languageVal string, testsNumber int) (Verification, error) {
 	if _, err := uuid.Parse(problemID); err != nil {
 		return Verification{}, fmt.Errorf("parse problemID: %w", errs.ErrInvalidArgument)
 	}
@@ -75,9 +75,10 @@ func NewVerificationUnitialized(problemID, codeVal, languageVal string) (Verific
 	}
 
 	return Verification{
-		ProblemID: problemID,
-		Code:      code,
-		Language:  language,
+		ProblemID:   problemID,
+		Code:        code,
+		Language:    language,
+		TestsNumber: testsNumber,
 	}, nil
 }
 

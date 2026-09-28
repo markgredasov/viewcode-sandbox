@@ -5,6 +5,8 @@ import (
 
 	grpcclient "github.com/markgredasov/viewcode-sandbox/internal/client/grpc"
 	submissions_v1 "github.com/markgredasov/viewcode-submissions/pkg/api/v1"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type client struct {
@@ -14,7 +16,7 @@ type client struct {
 }
 
 func newClient(addr string) (*client, error) {
-	cfg := grpcclient.NewConfig(addr)
+	cfg := grpcclient.NewConfig(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	conn, err := grpcclient.NewConn(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create client: %s: %w", addr, err)

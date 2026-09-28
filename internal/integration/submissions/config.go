@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	Address string `envconfig:"ADDR"`
+	Address string `envconfig:"ADDR" required:"true"`
 }
 
 func newConfig() (Config, error) {

@@ -1,7 +1,9 @@
 package handler_executions
 
 import (
-	"github.com/markgredasov/viewcode-sandbox/internal/model"
+	"time"
+
+	"github.com/markgredasov/viewcode-sandbox/internal/model/execution"
 )
 
 type ExecuteDTORequest struct {
@@ -11,43 +13,47 @@ type ExecuteDTORequest struct {
 }
 
 type ExecuteDTOResponse struct {
-	IsPassed        bool                       `json:"is_passed"`
-	TestsResult     TestsResultDTOResponse     `json:"tests"`
-	ExecutionResult ExecutionResultDTOResponse `json:"execution"`
+	Submission SubmissionDTO `json:"submission"`
+	Result     ResultDTO     `json:"result"`
 }
 
-type TestsResultDTOResponse struct {
-	TotalTestsNumber  int64   `json:"total"`
-	PassedTestsNumber int64   `json:"passed"`
-	FailedTestLog     string  `json:"failed_log"`
-	PassingDuration   float64 `json:"passing_duration_in_ms"`
+type SubmissionDTO struct {
+	ID                string
+	ProblemID         string
+	TestsTotal        int
+	TestsPassed       int
+	Status            string
+	Language          string
+	ExecutionTimeInMS int
+	Timestamp         time.Time
 }
 
-type ExecutionResultDTOResponse struct {
-	StdOut   string `json:"stdout"`
-	StdErr   string `json:"stderr"`
-	Duration string `json:"duration"`
+type ResultDTO struct {
+	StdOut   string        `json:"stdout"`
+	StdErr   string        `json:"stderr"`
+	Duration time.Duration `json:"duration"`
 }
 
-func fromModelToDTO(m model.Execution) ExecuteDTOResponse {
-	executionInfo := ExecutionResultDTOResponse{
-		StdOut:   m.ExecutionResult.StdOut,
-		StdErr:   m.ExecutionResult.StdErr,
-		Duration: m.ExecutionResult.Duration.String(),
+func fromModelToDTO(m execution.Execution) ExecuteDTOResponse {
+	s := SubmissionDTO{
+		ID:                m.Submission.ID.String(),
+		ProblemID:         m.Submission.ProblemID.String(),
+		TestsTotal:        m.Submission.TestsTotal,
+		TestsPassed:       m.Submission.TestsPassed,
+		Status:            m.Submission.Status.String(),
+		Language:          m.Submission.Language.String(),
+		ExecutionTimeInMS: m.Submission.ExecutionTimeInMS,
+		Timestamp:         m.Submission.UpdatedAt,
 	}
 
-	testsInfo := TestsResultDTOResponse{
-		TotalTestsNumber:  m.TestsResult.TotalTestsNumber,
-		PassedTestsNumber: m.TestsResult.PassedTestsNumber,
-		FailedTestLog:     m.TestsResult.FailedTestLog,
-		PassingDuration:   m.TestsResult.PassingDurationInMs,
+	r := ResultDTO{
+		StdOut:   m.Result.StdOut,
+		StdErr:   m.Result.StdErr,
+		Duration: m.Result.Duration,
 	}
-
-	isPassed := testsInfo.PassedTestsNumber == testsInfo.TotalTestsNumber
 
 	return ExecuteDTOResponse{
-		IsPassed:        isPassed,
-		TestsResult:     testsInfo,
-		ExecutionResult: executionInfo,
+		Submission: s,
+		Result:     r,
 	}
 }

@@ -23,8 +23,8 @@ func newParserLanguageGo() *parserLanguageGo {
 func (p *parserLanguageGo) Parse(stdOut string) (model.TestsResult, error) {
 	scanner := bufio.NewScanner(strings.NewReader(stdOut))
 
-	var testsCount int64 = 0
-	var testsPassed int64 = 0
+	testsCount := 0
+	testsPassed := 0
 	lastLine := ""
 
 	for scanner.Scan() {

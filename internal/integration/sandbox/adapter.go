@@ -7,6 +7,7 @@ import (
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	sandbox_config "github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox/config"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
+	"github.com/markgredasov/viewcode-sandbox/internal/model/execution"
 )
 
 var languageModelToExecutionLanguage = map[model.Language]string{
@@ -52,35 +53,29 @@ func NewAdapter(config sandbox_config.Config) (*Adapter, error) {
 
 func (a *Adapter) RunTests(
 	ctx context.Context,
-	exec model.Execution,
+	code model.Code,
 	tests model.Verification,
-) (model.Execution, error) {
-	language, ok := languageModelToExecutionLanguage[exec.Language]
+) (execution.ExecutionResult, error) {
+	language, ok := languageModelToExecutionLanguage[tests.Language]
 	if !ok {
-		return model.Execution{}, fmt.Errorf("invalid language: %w", errs.ErrInvalidArgument)
+		return execution.ExecutionResult{}, errs.InvalidArgument(fmt.Sprintf("language: %s", tests.Language))
 	}
 
 	testsCode := tests.Code.String()
 
 	req := executionRequest{
 		Language: language,
-		Code:     exec.Code.String(),
+		Code:     code.String(),
 		Timeout:  a.sandbox.config.ContainerExecTimeout,
 		Tests:    &testsCode,
 	}
 
 	execResult, err := a.sandbox.executeTests(ctx, req)
 	if err != nil {
-		return model.Execution{}, err
+		return execution.ExecutionResult{}, err
 	}
 
-	executionResultModel := model.NewExecutionResult(execResult.StdOut, execResult.StdErr, execResult.Duration)
+	res := execution.NewResult(execResult.StdOut, execResult.StdErr, execResult.Duration)
 
-	return model.Execution{
-		Language: exec.Language,
-		Code:     exec.Code,
-		Tests:    tests,
-
-		ExecutionResult: executionResultModel,
-	}, nil
+	return res, nil
 }

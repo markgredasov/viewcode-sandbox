@@ -41,9 +41,6 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	)
 
 	switch {
-	case errors.Is(err, errs.ErrNoTestsProvided):
-		statusCode = http.StatusNotFound
-		logFunc = h.log.Error
 	case errors.Is(err, errs.ErrInvalidArgument):
 		statusCode = http.StatusBadRequest
 		logFunc = h.log.Info

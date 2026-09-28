@@ -35,7 +35,7 @@ func (h *VerificationsHTTPHandler) Create(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	verificationFromRequest, err := model.NewVerificationUnitialized(req.ProblemID, req.Code, req.Language)
+	verificationFromRequest, err := model.NewVerificationUnitialized(req.ProblemID, req.Code, req.Language, req.TestsNumber)
 	if err != nil {
 		responseHandler.ErrorResponse(err, err.Error())
 		return

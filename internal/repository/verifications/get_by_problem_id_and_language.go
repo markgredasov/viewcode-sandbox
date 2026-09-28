@@ -15,7 +15,7 @@ func (r *CodeVerificationRepository) GetByProblemIDAndLanguage(ctx context.Conte
 	defer cancel()
 
 	sqlQuery := `
-		SELECT id, problem_id, tests_code, created_at, submissions_count, lang, code_template
+		SELECT id, problem_id, tests_code, created_at, total_number, lang, code_template
 		FROM public.code_verification
 		WHERE problem_id=$1 AND lang=$2;
 	`
@@ -28,7 +28,7 @@ func (r *CodeVerificationRepository) GetByProblemIDAndLanguage(ctx context.Conte
 		&record.ProblemID,
 		&record.Code,
 		&record.CreatedAt,
-		&record.SubmissionsCount,
+		&record.TestsNumber,
 		&record.Language,
 		&record.CodeTemplate,
 	)

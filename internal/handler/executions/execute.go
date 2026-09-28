@@ -21,7 +21,7 @@ import (
 // @Failure 	404  			{object} 	response.ErrorResponse 				"Верификация для выбранного языка/проблемы не существует"
 // @Failure 	500  			{object} 	response.ErrorResponse 				"Внутренняя ошибка сервера"
 // @Router 		/executions 	[post]
-func (h *ExecutionsHTTPHandler) Execute(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Execute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := logger.FromContext(ctx)
 	responseHandler := response.NewHTTPResponseHandler(log, w)
@@ -32,13 +32,7 @@ func (h *ExecutionsHTTPHandler) Execute(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	executionFromRequest, err := model.NewExecution(req.ProblemID, req.Language, req.Code)
-	if err != nil {
-		responseHandler.ErrorResponse(err, err.Error())
-		return
-	}
-
-	execution, err := h.executionsService.Execute(ctx, executionFromRequest)
+	execution, err := h.executionsService.Execute(ctx, model.NewUUID().String(), req.ProblemID, req.Language, req.Code)
 	if err != nil {
 		responseHandler.ErrorResponse(err, err.Error())
 		return

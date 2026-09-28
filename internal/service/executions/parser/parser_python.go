@@ -35,14 +35,14 @@ func (p *parserLanguagePython) Parse(stdOut string) (model.TestsResult, error) {
 		}
 	}
 
-	testsFailed, err := utils_string.ParseRegexpToInt64(lastLine, testsFailedRegexp)
+	testsFailed, err := utils_string.ParseRegexpToInt(lastLine, testsFailedRegexp)
 	if err != nil {
 		if !errors.Is(err, errs.ErrNotFound) {
 			return model.TestsResult{}, fmt.Errorf("testsFailed: %w", err)
 		}
 	}
 
-	testsPassed, err := utils_string.ParseRegexpToInt64(lastLine, testsPassedRegexp)
+	testsPassed, err := utils_string.ParseRegexpToInt(lastLine, testsPassedRegexp)
 	if err != nil {
 		if !errors.Is(err, errs.ErrNotFound) {
 			return model.TestsResult{}, fmt.Errorf("testsPassed: %w", err)

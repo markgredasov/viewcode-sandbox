@@ -11,6 +11,7 @@ import (
 	handler_verifications "github.com/markgredasov/viewcode-sandbox/internal/handler/verifications"
 	"github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox"
 	sandbox_config "github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox/config"
+	submissionsingegration "github.com/markgredasov/viewcode-sandbox/internal/integration/submissions"
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/repository/problems"
 	"github.com/markgredasov/viewcode-sandbox/internal/repository/verifications"
@@ -25,14 +26,15 @@ import (
 type diContainer struct {
 	pool *dbpostgres.ConnectionPool
 
-	adapterSandbox *sandbox.Adapter
-	adapterParser  *parser.Adapter
+	adapterSandbox     *sandbox.Adapter
+	adapterParser      *parser.Adapter
+	adapterSubmissions *submissionsingegration.Adapter
 
 	verificationsRepository *verifications.CodeVerificationRepository
 	verificationsService    *service_verifications.VerificationsService
 	verificationsHandler    *handler_verifications.VerificationsHTTPHandler
 	executionsService       *service_executions.ExecutionsService
-	executionsHandler       *handler_executions.ExecutionsHTTPHandler
+	executionsHandler       *handler_executions.Handler
 	problemsRepository      *problems.Repository
 	problemsService         *service_problems.ProblemsService
 	problemsHandler         *handler_problems.ProblemsHTTPHandler
@@ -96,6 +98,19 @@ func (d *diContainer) AdapterParser() *parser.Adapter {
 	return d.adapterParser
 }
 
+func (d *diContainer) AdapterSubmissions() *submissionsingegration.Adapter {
+	if d.adapterSubmissions == nil {
+		cfg := submissionsingegration.NewConfigMust()
+		adapter, err := submissionsingegration.NewAdapter(cfg)
+		if err != nil {
+			panic(err)
+		}
+		d.adapterSubmissions = adapter
+	}
+
+	return d.adapterSubmissions
+}
+
 func (d *diContainer) VerificationsRepository() *verifications.CodeVerificationRepository {
 	if d.verificationsRepository == nil {
 		d.verificationsRepository = verifications.NewCodeVerificationRepository(d.Pool())
@@ -122,15 +137,16 @@ func (d *diContainer) VerificationsHandler() *handler_verifications.Verification
 
 func (d *diContainer) ExecutionsService() *service_executions.ExecutionsService {
 	if d.executionsService == nil {
-		d.executionsService = service_executions.NewExecutionsService(d.AdapterSandbox(), d.VerificationsRepository(), d.AdapterParser())
+		d.executionsService = service_executions.NewExecutionsService(d.AdapterSandbox(), d.VerificationsRepository(),
+			d.AdapterParser(), d.AdapterSubmissions())
 	}
 
 	return d.executionsService
 }
 
-func (d *diContainer) ExecutionsHandler() *handler_executions.ExecutionsHTTPHandler {
+func (d *diContainer) ExecutionsHandler() *handler_executions.Handler {
 	if d.executionsHandler == nil {
-		d.executionsHandler = handler_executions.NewExecutionsHTTPHandler(d.ExecutionsService())
+		d.executionsHandler = handler_executions.New(d.ExecutionsService())
 	}
 
 	return d.executionsHandler

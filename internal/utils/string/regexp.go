@@ -8,12 +8,12 @@ import (
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 )
 
-func ParseRegexpToInt64(line string, regExpression string) (int64, error) {
+func ParseRegexpToInt(line string, regExpression string) (int, error) {
 	re := regexp.MustCompile(regExpression)
 	matches := re.FindStringSubmatch(line)
 
 	if len(matches) > 1 {
-		result, err := strconv.ParseInt(matches[1], 10, 64)
+		result, err := strconv.Atoi(matches[1])
 		if err != nil {
 			return 0, fmt.Errorf("convert: %w", err)
 		}

@@ -4,25 +4,25 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/markgredasov/viewcode-sandbox/internal/model"
+	"github.com/markgredasov/viewcode-sandbox/internal/model/execution"
 	server_http "github.com/markgredasov/viewcode-sandbox/internal/server/http/server"
 )
 
-type ExecutionsHTTPHandler struct {
+type Handler struct {
 	executionsService ExecutionsService
 }
 
 type ExecutionsService interface {
-	Execute(ctx context.Context, exec model.Execution) (model.Execution, error)
+	Execute(ctx context.Context, userID, problemID, language, code string) (execution.Execution, error)
 }
 
-func NewExecutionsHTTPHandler(executionsService ExecutionsService) *ExecutionsHTTPHandler {
-	return &ExecutionsHTTPHandler{
+func New(executionsService ExecutionsService) *Handler {
+	return &Handler{
 		executionsService: executionsService,
 	}
 }
 
-func (h *ExecutionsHTTPHandler) Routes() []server_http.Route {
+func (h *Handler) Routes() []server_http.Route {
 	return []server_http.Route{
 		{
 			Method:  http.MethodPost,

@@ -27,7 +27,7 @@ func (s *sandbox) executeTestsLanguageGo(ctx context.Context, request executionR
 			return nil, err
 		}
 	} else {
-		return nil, errs.ErrNoTestsProvided
+		return nil, errs.NotFound("no tests found")
 	}
 
 	if err = s.createGoMod(workDir); err != nil {

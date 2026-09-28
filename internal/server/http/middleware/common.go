@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,13 +34,13 @@ func Logger(l *logger.Logger) Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestID := r.Header.Get(requestIDHeader)
 
-			l = l.With(
+			requestLogger := l.With(
 				zap.String("Request-ID", requestID),
 				zap.String("Method", r.Method),
 				zap.String("URL", r.URL.String()),
 			)
 
-			ctx := l.InContext(r.Context())
+			ctx := requestLogger.InContext(r.Context())
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -49,6 +50,11 @@ func Logger(l *logger.Logger) Middleware {
 func Recovery() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/swagger/") {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			ctx := r.Context()
 			logger := logger.FromContext(ctx)
 			responseHandler := response.NewHTTPResponseHandler(logger, w)
@@ -70,6 +76,11 @@ func Recovery() Middleware {
 func Trace() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if strings.HasPrefix(r.URL.Path, "/swagger/") {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			ctx := r.Context()
 			logger := logger.FromContext(ctx)
 

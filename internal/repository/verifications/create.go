@@ -15,15 +15,16 @@ func (r *CodeVerificationRepository) Create(ctx context.Context, verification mo
 	defer cancel()
 
 	sqlQuery := `
-		INSERT INTO public.code_verification (id, problem_id, tests_code, lang)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id, problem_id, tests_code, created_at, submissions_count, lang;
+		INSERT INTO public.code_verification (id, problem_id, tests_code, total_number, lang)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id, problem_id, tests_code, created_at, total_number, lang;
 	`
 
-	row := r.pool.QueryRow(ctx, sqlQuery, verification.ID, verification.ProblemID, verification.Code, verification.Language)
+	row := r.pool.QueryRow(ctx, sqlQuery, verification.ID, verification.ProblemID,
+		verification.Code, verification.TestsNumber, verification.Language)
 
 	var record VerificationRecord
-	err := row.Scan(&record.ID, &record.ProblemID, &record.Code, &record.CreatedAt, &record.SubmissionsCount, &record.Language)
+	err := row.Scan(&record.ID, &record.ProblemID, &record.Code, &record.CreatedAt, &record.TestsNumber, &record.Language)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {

@@ -23,7 +23,7 @@ func (s *sandbox) executeTestsLanguagePython(ctx context.Context, request execut
 	}
 
 	if request.Tests == nil {
-		return nil, errs.ErrNoTestsProvided
+		return nil, errs.NotFound("no tests found")
 	}
 
 	if err = s.saveCode("test_main.py", workDir, *request.Tests); err != nil {

@@ -68,7 +68,7 @@ tasks:
 
   migrate-down:
     cmds:
-      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations down
+      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations -v down
 
   env-up:
     cmds:

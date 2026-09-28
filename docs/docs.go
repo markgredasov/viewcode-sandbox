@@ -412,22 +412,19 @@ const docTemplate = `{
         "internal_handler_executions.ExecuteDTOResponse": {
             "type": "object",
             "properties": {
-                "execution": {
-                    "$ref": "#/definitions/internal_handler_executions.ExecutionResultDTOResponse"
+                "result": {
+                    "$ref": "#/definitions/internal_handler_executions.ResultDTO"
                 },
-                "is_passed": {
-                    "type": "boolean"
-                },
-                "tests": {
-                    "$ref": "#/definitions/internal_handler_executions.TestsResultDTOResponse"
+                "submission": {
+                    "$ref": "#/definitions/internal_handler_executions.SubmissionDTO"
                 }
             }
         },
-        "internal_handler_executions.ExecutionResultDTOResponse": {
+        "internal_handler_executions.ResultDTO": {
             "type": "object",
             "properties": {
                 "duration": {
-                    "type": "string"
+                    "$ref": "#/definitions/time.Duration"
                 },
                 "stderr": {
                     "type": "string"
@@ -437,20 +434,32 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_executions.TestsResultDTOResponse": {
+        "internal_handler_executions.SubmissionDTO": {
             "type": "object",
             "properties": {
-                "failed_log": {
+                "executionTimeInMS": {
+                    "type": "integer"
+                },
+                "id": {
                     "type": "string"
                 },
-                "passed": {
+                "language": {
+                    "type": "string"
+                },
+                "problemID": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "testsPassed": {
                     "type": "integer"
                 },
-                "passing_duration_in_ms": {
-                    "type": "number"
-                },
-                "total": {
+                "testsTotal": {
                     "type": "integer"
+                },
+                "timestamp": {
+                    "type": "string"
                 }
             }
         },
@@ -529,6 +538,9 @@ const docTemplate = `{
                 "problem_id": {
                     "type": "string"
                 },
+                "tests_number": {
+                    "type": "integer"
+                },
                 "verification_code": {
                     "type": "string"
                 }
@@ -552,13 +564,37 @@ const docTemplate = `{
                 "problem_id": {
                     "type": "string"
                 },
-                "submissions_count": {
+                "tests_number": {
                     "type": "integer"
                 },
                 "verification_code": {
                     "type": "string"
                 }
             }
+        },
+        "time.Duration": {
+            "type": "integer",
+            "format": "int64",
+            "enum": [
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
+                3600000000000
+            ],
+            "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour"
+            ]
         }
     },
     "securityDefinitions": {

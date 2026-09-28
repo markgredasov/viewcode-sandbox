@@ -18,13 +18,13 @@ func (r *CodeVerificationRepository) UpdateCodeTemplate(ctx context.Context, ver
 		UPDATE public.code_verification
 		SET code_template = $1
 		WHERE id = $2
-		RETURNING id, problem_id, tests_code, created_at, submissions_count, lang, code_template;
+		RETURNING id, problem_id, tests_code, created_at, total_number, lang, code_template;
 	`
 
 	row := r.pool.QueryRow(ctx, sqlQuery, codeTemplate, verificationID)
 
 	var record VerificationRecord
-	err := row.Scan(&record.ID, &record.ProblemID, &record.Code, &record.CreatedAt, &record.SubmissionsCount, &record.Language, &record.CodeTemplate)
+	err := row.Scan(&record.ID, &record.ProblemID, &record.Code, &record.CreatedAt, &record.TestsNumber, &record.Language, &record.CodeTemplate)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23503" {
