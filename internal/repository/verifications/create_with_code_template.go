@@ -16,7 +16,7 @@ func (r *CodeVerificationRepository) CreateWithCodeTemplate(ctx context.Context,
 
 	sqlQuery := `
 		INSERT INTO public.code_verification (id, problem_id, tests_code, total_number, lang, code_template)
-		VALUES ($1, $2, $3, $4, $5)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, problem_id, tests_code, created_at, total_number, lang, code_template;
 	`
 

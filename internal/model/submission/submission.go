@@ -63,6 +63,21 @@ func (s *Submission) WithID(id model.UUID) *Submission {
 	return s
 }
 
+func (s *Submission) WithCreatedAt(createdAt time.Time) *Submission {
+	s.CreatedAt = createdAt
+	return s
+}
+
+func (s *Submission) WithUpdatedAt(updatedAt time.Time) *Submission {
+	s.UpdatedAt = updatedAt
+	return s
+}
+
+func (s *Submission) WithStatus(status Status) *Submission {
+	s.Status = status
+	return s
+}
+
 func (s *Submission) GetAvailableNextStatuses() []Status {
 	switch s.Status {
 	case StatusPending:

@@ -2,7 +2,9 @@ package service_executions
 
 import (
 	"context"
+	"errors"
 
+	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/markgredasov/viewcode-sandbox/internal/model/execution"
@@ -40,6 +42,19 @@ func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, lang
 
 	execRes, err := s.testsRunningPort.RunTests(ctx, codeModel, tests)
 	if err != nil {
+		_, pErr := s.submissionsPort.SetResult(ctx, subm.ID.String(), submission.StatusInternal, subm.TestsPassed, 0)
+		if pErr != nil {
+			return execution.Execution{}, errors.Join(err, pErr)
+		}
+		return execution.Execution{}, err
+	}
+
+	if execRes.StdErr != "" {
+		err = errs.Internal("stderr is not empty", errs.ErrInternal)
+		_, pErr := s.submissionsPort.SetResult(ctx, subm.ID.String(), submission.StatusInternal, subm.TestsPassed, 0)
+		if pErr != nil {
+			return execution.Execution{}, errors.Join(err, pErr)
+		}
 		return execution.Execution{}, err
 	}
 
@@ -58,9 +73,14 @@ func (s *ExecutionsService) parseToExecution(ctx context.Context, log *logger.Lo
 		return execution.Execution{}, err
 	}
 
-	log.Debug("tests result", zap.Any("tests result", testsResult))
+	var status submission.Status
+	if testsResult.TotalTestsNumber == testsResult.PassedTestsNumber {
+		status = submission.StatusAccepted
+	} else {
+		status = submission.StatusWrongAnswer
+	}
 
-	subm, err = s.submissionsPort.SetResult(ctx, subm.ID.String(), submission.StatusAccepted, testsResult.PassedTestsNumber, testsResult.PassingDurationInMs)
+	subm, err = s.submissionsPort.SetResult(ctx, subm.ID.String(), status, testsResult.PassedTestsNumber, testsResult.PassingDurationInMs)
 	if err != nil {
 		log.Error("failed to set submission result", zap.String("submissionID", subm.ID.String()))
 	}

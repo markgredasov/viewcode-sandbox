@@ -1,7 +1,7 @@
 services:
-  postgres:
+  viewcode-sandbox-postgres:
     image: postgres:18.1-bookworm
-    container_name: postgres
+    container_name: viewcode-sandbox-postgres
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -12,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - news-distribution-network  
+      - viewcode-sandbox-network  
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -27,6 +27,6 @@ services:
       - ${PROJECT_ROOT}:/code
 
 networks:
-  news-distribution-network:
+  viewcode-sandbox-network:
     driver: bridge
     
