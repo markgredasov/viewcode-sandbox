@@ -13,6 +13,8 @@ import (
 )
 
 func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, language, code string) (execution.Execution, error) {
+	log := logger.FromContext(ctx)
+
 	lang, err := model.NewLanguage(language)
 	if err != nil {
 		return execution.Execution{}, err
@@ -22,8 +24,6 @@ func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, lang
 	if err != nil {
 		return execution.Execution{}, err
 	}
-
-	log := logger.FromContext(ctx)
 
 	subm, err := s.submissionsPort.CreateSubmission(ctx, userID, problemID, tests.TestsNumber, lang)
 	if err != nil {
@@ -40,21 +40,8 @@ func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, lang
 		log.Error("failed to set submission running", zap.String("submissionID", subm.ID.String()))
 	}
 
-	execRes, err := s.testsRunningPort.RunTests(ctx, codeModel, tests)
+	execRes, err := s.runTests(ctx, subm, codeModel, tests)
 	if err != nil {
-		_, pErr := s.submissionsPort.SetResult(ctx, subm.ID.String(), submission.StatusInternal, subm.TestsPassed, 0)
-		if pErr != nil {
-			return execution.Execution{}, errors.Join(err, pErr)
-		}
-		return execution.Execution{}, err
-	}
-
-	if execRes.StdErr != "" {
-		err = errs.Internal("stderr is not empty", errs.ErrInternal)
-		_, pErr := s.submissionsPort.SetResult(ctx, subm.ID.String(), submission.StatusInternal, subm.TestsPassed, 0)
-		if pErr != nil {
-			return execution.Execution{}, errors.Join(err, pErr)
-		}
 		return execution.Execution{}, err
 	}
 
@@ -64,6 +51,34 @@ func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, lang
 	}
 
 	return e, nil
+}
+
+func (s *ExecutionsService) runTests(ctx context.Context, subm submission.Submission,
+	codeModel model.Code, tests model.Verification) (execution.ExecutionResult, error) {
+	res, err := s.testsRunningPort.RunTests(ctx, codeModel, tests)
+	if err != nil {
+		status := submission.StatusInternal
+		if errors.Is(err, errs.ErrTimeoutExceeded) {
+			status = submission.StatusTimeout
+		}
+
+		_, pErr := s.submissionsPort.SetResult(ctx, subm.ID.String(), status, subm.TestsPassed, 0)
+		if pErr != nil {
+			return execution.ExecutionResult{}, errors.Join(err, pErr)
+		}
+		return execution.ExecutionResult{}, err
+	}
+
+	if res.StdErr != "" {
+		err = errs.Internal("stderr is not empty", errs.ErrInternal)
+		_, pErr := s.submissionsPort.SetResult(ctx, subm.ID.String(), submission.StatusInternal, subm.TestsPassed, 0)
+		if pErr != nil {
+			return execution.ExecutionResult{}, errors.Join(err, pErr)
+		}
+		return execution.ExecutionResult{}, err
+	}
+
+	return res, nil
 }
 
 func (s *ExecutionsService) parseToExecution(ctx context.Context, log *logger.Logger, res execution.ExecutionResult,

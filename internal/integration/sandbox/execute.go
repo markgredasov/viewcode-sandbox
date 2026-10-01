@@ -132,7 +132,7 @@ func (s *sandbox) waitContainer(ctx context.Context, containerID string, timeout
 	case <-waitCtx.Done():
 		//nolint:errcheck // not needed
 		s.dockerClient.ContainerStop(context.Background(), containerID, client.ContainerStopOptions{})
-		return 0, fmt.Errorf("execution timeout after %v", timeout)
+		return 0, errs.TimeoutExceeded(fmt.Sprintf("execution timeout after %v", timeout))
 	}
 }
 

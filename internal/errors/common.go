@@ -12,6 +12,7 @@ var (
 	ErrInvalidRequest  = errors.New("invalid request")
 	ErrNotImplemented  = errors.New("not implemented yet")
 	ErrInternal        = errors.New("internal")
+	ErrTimeoutExceeded = errors.New("timeout exceeded")
 )
 
 func InvalidArgument(msg string) error {
@@ -36,4 +37,8 @@ func NotImplemented(msg string) error {
 
 func Internal(msg string, err error) error {
 	return fmt.Errorf("%s: %w: %w", msg, err, ErrInternal)
+}
+
+func TimeoutExceeded(msg string) error {
+	return fmt.Errorf("%s: %w", msg, ErrTimeoutExceeded)
 }
