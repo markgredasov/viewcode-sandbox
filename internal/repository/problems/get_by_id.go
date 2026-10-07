@@ -3,7 +3,6 @@ package problems
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
@@ -20,20 +19,19 @@ func (r *Repository) GetByID(ctx context.Context, id string) (model.Problem, err
 		WHERE id = $1;
 	`
 
-	row := r.pool.QueryRow(ctx, sqlQuery, id)
-
-	var pr ProblemRecord
-	if err := row.Scan(&pr.ProblemID, &pr.Name, &pr.Description, &pr.CreatedAt, &pr.Languages, &pr.Complexity, &pr.Categories); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Problem{}, fmt.Errorf("problem not found: %w", errs.ErrNotFound)
-		}
-		return model.Problem{}, err
-	}
-
-	problem, err := fromProblemRecordToModel(pr)
+	rows, err := r.pool.Query(ctx, sqlQuery, id)
 	if err != nil {
-		return model.Problem{}, err
+		return model.Problem{}, errs.Internal("query row", err)
 	}
 
-	return problem, nil
+	rec, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[ProblemRecord])
+	if err != nil {
+		msg := "scan row"
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Problem{}, errs.NotFound("problem not found")
+		}
+		return model.Problem{}, errs.Internal(msg, err)
+	}
+
+	return toModel(rec)
 }

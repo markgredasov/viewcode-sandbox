@@ -30,22 +30,16 @@ func (r *CodeVerificationRepository) Create(ctx context.Context, verification mo
 		if errors.As(err, &pgErr) {
 			switch pgErr.Code {
 			case "23505":
-				return model.Verification{}, fmt.Errorf(
-					"verification code for problem_id=%s and language=%s already exists: %w",
-					verification.ProblemID,
-					verification.Language,
-					errs.ErrAlreadyExists,
-				)
+				msg := fmt.Sprintf("verification code for problem_id=%s and language=%s already exists",
+					verification.ProblemID, verification.Language)
+				return model.Verification{}, errs.AlreadyExists(msg)
 			case "23503":
-				return model.Verification{}, fmt.Errorf(
-					"problem with id=%s not found: %w",
-					verification.ProblemID,
-					errs.ErrNotFound,
-				)
+				msg := fmt.Sprintf("problem with id=%s not found", verification.ProblemID)
+				return model.Verification{}, errs.NotFound(msg)
 			}
 		}
-		return model.Verification{}, err
+		return model.Verification{}, errs.Internal("row scan", err)
 	}
 
-	return fromRecordToModel(record)
+	return toModel(record)
 }

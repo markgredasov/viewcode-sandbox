@@ -7,16 +7,16 @@ import (
 )
 
 type VerificationRecord struct {
-	ID           string
-	ProblemID    string
-	Code         string
-	Language     string
-	CreatedAt    time.Time
-	TestsNumber  int
-	CodeTemplate *string
+	ID           string    `db:"id"`
+	ProblemID    string    `db:"problem_id"`
+	Code         string    `db:"tests_code"`
+	Language     string    `db:"lang"`
+	CreatedAt    time.Time `db:"created_at"`
+	TestsNumber  int       `db:"total_number"`
+	CodeTemplate *string   `db:"code_template"`
 }
 
-func fromRecordToModel(r VerificationRecord) (model.Verification, error) {
+func toModel(r VerificationRecord) (model.Verification, error) {
 	verificationModel, err := model.NewVerification(r.ID, r.ProblemID, r.Code, r.Language, r.CreatedAt, r.TestsNumber)
 	if err != nil {
 		return model.Verification{}, err

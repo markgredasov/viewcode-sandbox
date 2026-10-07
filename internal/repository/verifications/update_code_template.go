@@ -28,14 +28,11 @@ func (r *CodeVerificationRepository) UpdateCodeTemplate(ctx context.Context, ver
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23503" {
-			return model.Verification{}, fmt.Errorf(
-				"verification with id=%s not found: %w",
-				verificationID,
-				errs.ErrNotFound,
-			)
+			msg := fmt.Sprintf("verification with id=%s not found", verificationID)
+			return model.Verification{}, errs.NotFound(msg)
 		}
-		return model.Verification{}, err
+		return model.Verification{}, errs.Internal("row scan", err)
 	}
 
-	return fromRecordToModel(record)
+	return toModel(record)
 }

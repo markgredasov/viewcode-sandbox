@@ -22,7 +22,7 @@ func (r *Repository) Delete(ctx context.Context, id string) error {
 	}
 
 	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("problem with id=%s not found: %w", id, errs.ErrNotFound)
+		return errs.NotFound(fmt.Sprintf("problem with id=%s not found", id))
 	}
 
 	return nil

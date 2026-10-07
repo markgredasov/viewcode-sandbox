@@ -3,7 +3,9 @@ package problems
 import (
 	"context"
 
-	query_builder "github.com/markgredasov/viewcode-sandbox/internal/database/postgres/query"
+	sq "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
+	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
@@ -11,52 +13,33 @@ func (r *Repository) GetAll(ctx context.Context, complexity string, categories [
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 
-	sqlQuery := `
-		SELECT id, name, description, created_at, langs, complexity_rate, categories
-		FROM problems;
-	`
+	query := sq.
+		Select("id, name, description, created_at, langs, complexity_rate, categories").
+		From("problems").
+		PlaceholderFormat(sq.Dollar)
 
-	qb := query_builder.New(sqlQuery)
-	qb.AddString("complexity_rate", complexity)
-	qb.AddTypeArray("categories", categories, "category")
+	if complexity != "" {
+		query = query.Where(sq.Eq{"complexity_rate": complexity})
+	}
 
-	sqlQuery, args := qb.Get()
+	if len(categories) != 0 {
+		query = query.Where(sq.Expr("categories && ?::category[]", categories))
+	}
+
+	sqlQuery, args, err := query.ToSql()
+	if err != nil {
+		return []model.Problem{}, errs.Internal("building sql query", err)
+	}
 
 	rows, err := r.pool.Query(ctx, sqlQuery, args...)
 	if err != nil {
-		return []model.Problem{}, err
-	}
-	defer rows.Close()
-
-	problemModels := make([]model.Problem, 0)
-	for rows.Next() {
-		var pr ProblemRecord
-
-		err = rows.Scan(
-			&pr.ProblemID,
-			&pr.Name,
-			&pr.Description,
-			&pr.CreatedAt,
-			&pr.Languages,
-			&pr.Complexity,
-			&pr.Categories,
-		)
-		if err != nil {
-			return []model.Problem{}, err
-		}
-
-		//nolint:govet // problemModel is new variable
-		problemModel, err := fromProblemRecordToModel(pr)
-		if err != nil {
-			return []model.Problem{}, err
-		}
-
-		problemModels = append(problemModels, problemModel)
+		return []model.Problem{}, errs.Internal("rows query", err)
 	}
 
-	if err = rows.Err(); err != nil {
-		return []model.Problem{}, err
+	records, err := pgx.CollectRows(rows, pgx.RowToStructByName[ProblemRecord])
+	if err != nil {
+		return []model.Problem{}, errs.Internal("collect rows", err)
 	}
 
-	return problemModels, nil
+	return toModels(records)
 }

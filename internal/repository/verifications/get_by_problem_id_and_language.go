@@ -20,29 +20,19 @@ func (r *CodeVerificationRepository) GetByProblemIDAndLanguage(ctx context.Conte
 		WHERE problem_id=$1 AND lang=$2;
 	`
 
-	row := r.pool.QueryRow(ctx, sqlQuery, problemID, language.String())
-
-	var record VerificationRecord
-	err := row.Scan(
-		&record.ID,
-		&record.ProblemID,
-		&record.Code,
-		&record.CreatedAt,
-		&record.TestsNumber,
-		&record.Language,
-		&record.CodeTemplate,
-	)
+	rows, err := r.pool.Query(ctx, sqlQuery, problemID, language.String())
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.Verification{}, fmt.Errorf(
-				"no verifications for problem_id=%s and language=%s found: %w",
-				problemID,
-				language.String(),
-				errs.ErrNotFound,
-			)
-		}
-		return model.Verification{}, err
+		return model.Verification{}, errs.Internal("rows query", err)
 	}
 
-	return fromRecordToModel(record)
+	rec, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[VerificationRecord])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			msg := fmt.Sprintf("no verifications for problem_id=%s and language=%s found", problemID, language.String())
+			return model.Verification{}, errs.NotFound(msg)
+		}
+		return model.Verification{}, errs.Internal("row scan", err)
+	}
+
+	return toModel(rec)
 }
