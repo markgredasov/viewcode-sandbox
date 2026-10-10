@@ -100,6 +100,10 @@ func (s *ExecutionsService) parseToExecution(ctx context.Context, log *logger.Lo
 	subm, err = s.submissionsPort.SetResult(ctx, subm.ID.String(), status, testsResult.PassedTestsNumber, testsResult.PassingDurationInMs)
 	if err != nil {
 		log.Error("failed to set submission result", zap.String("submissionID", subm.ID.String()))
+		subm.TestsTotal = testsResult.TotalTestsNumber
+		subm.TestsPassed = testsResult.PassedTestsNumber
+		subm.ExecutionTimeInMS = int(testsResult.PassingDurationInMs)
+		subm.Status = submission.StatusAccepted
 	}
 
 	return execution.New(code, subm, res), nil
