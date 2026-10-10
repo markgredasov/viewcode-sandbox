@@ -1,8 +1,9 @@
 package sandbox
 
 import (
-	sandbox_config "github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox/config"
 	"github.com/moby/moby/client"
+
+	sandbox_config "github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox/config"
 )
 
 type sandbox struct {

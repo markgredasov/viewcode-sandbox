@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 
+	"go.uber.org/zap"
+
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/markgredasov/viewcode-sandbox/internal/model/execution"
 	"github.com/markgredasov/viewcode-sandbox/internal/model/submission"
-	"go.uber.org/zap"
 )
 
 func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, language, code string) (execution.Execution, error) {

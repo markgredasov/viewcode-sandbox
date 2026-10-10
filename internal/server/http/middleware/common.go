@@ -6,9 +6,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
+
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
-	"go.uber.org/zap"
 )
 
 func RequestID() Middleware {

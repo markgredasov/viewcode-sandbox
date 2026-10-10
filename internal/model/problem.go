@@ -6,6 +6,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 )
 

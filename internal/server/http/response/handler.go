@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
-	"go.uber.org/zap"
 )
 
 type HTTPResponseHandler struct {

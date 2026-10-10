@@ -4,6 +4,8 @@ import (
 	"context"
 	"os"
 
+	"go.uber.org/zap"
+
 	"github.com/markgredasov/viewcode-sandbox/internal/app/closer"
 	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	handler_executions "github.com/markgredasov/viewcode-sandbox/internal/handler/executions"
@@ -20,7 +22,6 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/service/executions/parser"
 	service_problems "github.com/markgredasov/viewcode-sandbox/internal/service/problems"
 	service_verifications "github.com/markgredasov/viewcode-sandbox/internal/service/verifications"
-	"go.uber.org/zap"
 )
 
 type diContainer struct {

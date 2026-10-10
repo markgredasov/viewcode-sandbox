@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/middleware"
-	"go.uber.org/zap"
 )
 
 type HTTPServer struct {

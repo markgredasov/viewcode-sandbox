@@ -6,9 +6,10 @@ import (
 	"os"
 	"time"
 
+	"go.uber.org/zap"
+
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/logger"
-	"go.uber.org/zap"
 )
 
 func (s *sandbox) executeTestsLanguagePython(ctx context.Context, request executionRequest) (*executionResult, error) {

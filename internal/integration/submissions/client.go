@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	grpcclient "github.com/markgredasov/viewcode-sandbox/internal/client/grpc"
 	submissions_v1 "github.com/markgredasov/viewcode-submissions/pkg/api/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	grpcclient "github.com/markgredasov/viewcode-sandbox/internal/client/grpc"
 )
 
 type client struct {

@@ -8,13 +8,14 @@ import (
 	"path/filepath"
 	"time"
 
-	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
-	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/mount"
 	"github.com/moby/moby/client"
 	"go.uber.org/zap"
+
+	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
+	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
 func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*executionResult, error) {

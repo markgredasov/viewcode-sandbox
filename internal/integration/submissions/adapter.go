@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"math"
 
+	submissions_v1 "github.com/markgredasov/viewcode-submissions/pkg/api/v1"
+
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/markgredasov/viewcode-sandbox/internal/model/submission"
-	submissions_v1 "github.com/markgredasov/viewcode-submissions/pkg/api/v1"
 )
 
 var (
@@ -39,23 +40,23 @@ var (
 		submissions_v1.Language_LANGUAGE_RUST:        model.LanguageRust,
 	}
 
-	statusModelToGRPCModel = map[submission.Status]submissions_v1.SubmissionStatus{
-		submission.StatusPending:     submissions_v1.SubmissionStatus_STATUS_PENDING,
-		submission.StatusRunning:     submissions_v1.SubmissionStatus_STATUS_RUNNING,
-		submission.StatusAccepted:    submissions_v1.SubmissionStatus_STATUS_ACCEPTED,
-		submission.StatusWrongAnswer: submissions_v1.SubmissionStatus_STATUS_WRONG_ANSWER,
-		submission.StatusTimeout:     submissions_v1.SubmissionStatus_STATUS_TIMEOUT,
-		submission.StatusInternal:    submissions_v1.SubmissionStatus_STATUS_INTERNAL,
+	statusModelToGRPCModel = map[submission.Status]submissions_v1.Status{
+		submission.StatusPending:     submissions_v1.Status_STATUS_PENDING,
+		submission.StatusRunning:     submissions_v1.Status_STATUS_RUNNING,
+		submission.StatusAccepted:    submissions_v1.Status_STATUS_ACCEPTED,
+		submission.StatusWrongAnswer: submissions_v1.Status_STATUS_WRONG_ANSWER,
+		submission.StatusTimeout:     submissions_v1.Status_STATUS_TIMEOUT,
+		submission.StatusInternal:    submissions_v1.Status_STATUS_INTERNAL,
 	}
 
 	//nolint:exhaustive // unspecified not needed in map
-	statusGRPCModelToModel = map[submissions_v1.SubmissionStatus]submission.Status{
-		submissions_v1.SubmissionStatus_STATUS_PENDING:      submission.StatusPending,
-		submissions_v1.SubmissionStatus_STATUS_RUNNING:      submission.StatusRunning,
-		submissions_v1.SubmissionStatus_STATUS_ACCEPTED:     submission.StatusAccepted,
-		submissions_v1.SubmissionStatus_STATUS_WRONG_ANSWER: submission.StatusWrongAnswer,
-		submissions_v1.SubmissionStatus_STATUS_TIMEOUT:      submission.StatusTimeout,
-		submissions_v1.SubmissionStatus_STATUS_INTERNAL:     submission.StatusInternal,
+	statusGRPCModelToModel = map[submissions_v1.Status]submission.Status{
+		submissions_v1.Status_STATUS_PENDING:      submission.StatusPending,
+		submissions_v1.Status_STATUS_RUNNING:      submission.StatusRunning,
+		submissions_v1.Status_STATUS_ACCEPTED:     submission.StatusAccepted,
+		submissions_v1.Status_STATUS_WRONG_ANSWER: submission.StatusWrongAnswer,
+		submissions_v1.Status_STATUS_TIMEOUT:      submission.StatusTimeout,
+		submissions_v1.Status_STATUS_INTERNAL:     submission.StatusInternal,
 	}
 )
 

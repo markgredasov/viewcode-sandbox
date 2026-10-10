@@ -7,8 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"go.uber.org/zap"
+
+	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 )
 
 type closeFn struct {

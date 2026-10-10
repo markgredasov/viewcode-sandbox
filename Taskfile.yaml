@@ -24,7 +24,7 @@ env:
   SANDBOX_DOCKER_CONFIG_LANGUAGES_FILEPATH: '{{.PROJECT_ROOT}}/config_images.yaml'
 
 tasks:
-  app:install-golangci-lint:
+  lint:install:
     cmds:
      - |
       [ -f  {{.GOLANGCI_LINT}} ] || {
@@ -35,12 +35,12 @@ tasks:
     status:
       - test -x {{.GOLANGCI_LINT}}
 
-  app:lint:
-    deps: [ app:install-golangci-lint ]
+  lint:run:
+    deps: [ lint:install ]
     cmds:
       - '{{.GOLANGCI_LINT}} run ./... --config=.golangci.yml'
   
-  app:lint-fix:
+  lint:fix:
     cmds:
       - '{{.GOLANGCI_LINT}} run --fix'
 

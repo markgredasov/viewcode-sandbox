@@ -3,8 +3,9 @@ package server_http
 import (
 	"net/http"
 
-	"github.com/markgredasov/viewcode-sandbox/docs"
 	httpSwagger "github.com/swaggo/http-swagger"
+
+	"github.com/markgredasov/viewcode-sandbox/docs"
 )
 
 func (h *HTTPServer) RegisterSwagger() {
