@@ -3,6 +3,7 @@ package submissionsingegration
 import (
 	"context"
 	"fmt"
+	"math"
 
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
@@ -73,11 +74,16 @@ func NewAdapter(cfg Config) (*Adapter, error) {
 	}, nil
 }
 
-func (a *Adapter) CreateSubmission(ctx context.Context, userID string, problemID string,
-	testsTotal int, language model.Language) (submission.Submission, error) {
+func (a *Adapter) CreateSubmission(ctx context.Context, userID, problemID string,
+	testsTotal int, language model.Language,
+) (submission.Submission, error) {
 	lang, ok := languageModelToGRPCModel[language]
 	if !ok {
 		return submission.Submission{}, errs.InvalidRequest(fmt.Sprintf("convert language to grpc model: %s", language))
+	}
+
+	if testsTotal < math.MinInt32 || testsTotal > math.MaxInt32 {
+		return submission.Submission{}, errs.InvalidRequest(fmt.Sprintf("cannot convert testsTotal=%d to int32", testsTotal))
 	}
 
 	request := &submissions_v1.CreateRequest{
@@ -109,10 +115,15 @@ func (a *Adapter) SetRunning(ctx context.Context, id string) (submission.Submiss
 }
 
 func (a *Adapter) SetResult(ctx context.Context, id string, status submission.Status,
-	testsPassed int, executionTimeInMS float64) (submission.Submission, error) {
+	testsPassed int, executionTimeInMS float64,
+) (submission.Submission, error) {
 	stat, ok := statusModelToGRPCModel[status]
 	if !ok {
 		return submission.Submission{}, errs.InvalidRequest(fmt.Sprintf("convert status to grpc model: %s", status.String()))
+	}
+
+	if testsPassed < math.MinInt32 || testsPassed > math.MaxInt32 {
+		return submission.Submission{}, errs.InvalidRequest(fmt.Sprintf("cannot convert testsPassed=%d to int32", testsPassed))
 	}
 
 	request := &submissions_v1.SetResultRequest{

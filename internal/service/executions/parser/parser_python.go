@@ -13,7 +13,7 @@ import (
 
 const (
 	testsFailedRegexp = `(\d+)\s+failed`
-	testsPassedRegexp = `(\d+)\s+passed`
+	testsOkRegexp     = `(\d+)\s+passed`
 )
 
 type parserLanguagePython struct{}
@@ -42,7 +42,7 @@ func (p *parserLanguagePython) Parse(stdOut string) (model.TestsResult, error) {
 		}
 	}
 
-	testsPassed, err := utils_string.ParseRegexpToInt(lastLine, testsPassedRegexp)
+	testsPassed, err := utils_string.ParseRegexpToInt(lastLine, testsOkRegexp)
 	if err != nil {
 		if !errors.Is(err, errs.ErrNotFound) {
 			return model.TestsResult{}, fmt.Errorf("testsPassed: %w", err)

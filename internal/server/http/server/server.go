@@ -39,8 +39,9 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 	mux := middleware.ChainMiddleware(h.mux, h.middleware...)
 
 	server := &http.Server{
-		Addr:    h.config.Address,
-		Handler: mux,
+		Addr:              h.config.Address,
+		Handler:           mux,
+		ReadHeaderTimeout: h.config.ReadHeaderTimeout,
 	}
 
 	ch := make(chan error, 1)
@@ -68,15 +69,21 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 	case <-ctx.Done():
 		h.log.Warn("shutdown HTTP server")
 		shutdownCtx, cancel := context.WithTimeout(
-			context.Background(),
+			context.WithoutCancel(ctx),
 			h.config.ShutdownTimeout,
 		)
 
 		defer cancel()
 
 		if err := server.Shutdown(shutdownCtx); err != nil {
-			_ = server.Close()
-			return fmt.Errorf("shutdown HTTP server: %w", err)
+			err = fmt.Errorf("shutdown HTTP server: %w", err)
+
+			sErr := server.Close()
+			if sErr != nil {
+				err = fmt.Errorf("close server: %w: %w", sErr, err)
+			}
+
+			return err
 		}
 
 		h.log.Warn("HTTP server stopped")

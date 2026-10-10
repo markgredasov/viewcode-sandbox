@@ -9,9 +9,7 @@ import (
 
 type APIVersion string
 
-var (
-	APIVersion1 = APIVersion("v1")
-)
+var APIVersion1 = APIVersion("v1")
 
 type APIVersionRouter struct {
 	*http.ServeMux

@@ -54,7 +54,8 @@ func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, lang
 }
 
 func (s *ExecutionsService) runTests(ctx context.Context, subm submission.Submission,
-	codeModel model.Code, tests model.Verification) (execution.ExecutionResult, error) {
+	codeModel model.Code, tests model.Verification,
+) (execution.ExecutionResult, error) {
 	res, err := s.testsRunningPort.RunTests(ctx, codeModel, tests)
 	if err != nil {
 		status := submission.StatusInternal
@@ -82,7 +83,8 @@ func (s *ExecutionsService) runTests(ctx context.Context, subm submission.Submis
 }
 
 func (s *ExecutionsService) parseToExecution(ctx context.Context, log *logger.Logger, res execution.ExecutionResult,
-	subm submission.Submission, code model.Code) (execution.Execution, error) {
+	subm submission.Submission, code model.Code,
+) (execution.Execution, error) {
 	testsResult, err := s.parserPort.Parse(model.LanguageGo, res.StdOut)
 	if err != nil {
 		return execution.Execution{}, err

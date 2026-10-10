@@ -26,7 +26,7 @@ func (qb *QueryBuilder) Get() (string, []any) {
 	return qb.sqlQuery, qb.args
 }
 
-func (qb *QueryBuilder) AddString(column string, value string) {
+func (qb *QueryBuilder) AddString(column, value string) {
 	if value == "" {
 		return
 	}

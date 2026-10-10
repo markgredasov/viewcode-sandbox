@@ -16,7 +16,7 @@ type LanguagesConfig struct {
 }
 
 func newLanguagesConfig(filepath string) (LanguagesConfig, error) {
-	data, err := os.ReadFile(filepath)
+	data, err := os.ReadFile(filepath) // nolint:gosec // todo
 	if err != nil {
 		return LanguagesConfig{}, err
 	}

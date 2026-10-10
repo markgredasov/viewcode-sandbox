@@ -28,13 +28,14 @@ type ParserPort interface {
 }
 
 type SubmissionsPort interface {
-	CreateSubmission(ctx context.Context, userID string, problemID string, testsTotal int, language model.Language) (submission.Submission, error)
+	CreateSubmission(ctx context.Context, userID, problemID string, testsTotal int, language model.Language) (submission.Submission, error)
 	SetRunning(ctx context.Context, id string) (submission.Submission, error)
 	SetResult(ctx context.Context, id string, status submission.Status, testsPassed int, executionTimeInMS float64) (submission.Submission, error)
 }
 
 func NewExecutionsService(testsRunningPort TestsRunningPort, testsRepo TestsRepository,
-	parserPort ParserPort, submissionsPort SubmissionsPort) *ExecutionsService {
+	parserPort ParserPort, submissionsPort SubmissionsPort,
+) *ExecutionsService {
 	return &ExecutionsService{
 		testsRunningPort: testsRunningPort,
 		testsRepo:        testsRepo,

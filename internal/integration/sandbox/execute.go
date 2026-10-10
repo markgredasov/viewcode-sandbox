@@ -9,10 +9,12 @@ import (
 	"time"
 
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
+	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/mount"
 	"github.com/moby/moby/client"
+	"go.uber.org/zap"
 )
 
 func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*executionResult, error) {
@@ -58,10 +60,10 @@ func (s *sandbox) executeTests(ctx context.Context, request executionRequest) (*
 	return result, nil
 }
 
-func (s *sandbox) saveCode(filename, workDir string, code string) error {
+func (s *sandbox) saveCode(filename, workDir, code string) error {
 	filepath := filepath.Join(workDir, filename)
 
-	return os.WriteFile(filepath, []byte(code), 0644)
+	return os.WriteFile(filepath, []byte(code), 0o644) //nolint:gosec // todo
 }
 
 func (s *sandbox) createContainer(ctx context.Context, workDir string, request executionRequest) (string, error) {
@@ -112,8 +114,10 @@ func (s *sandbox) startContainer(ctx context.Context, containerID string) error 
 }
 
 func (s *sandbox) waitContainer(ctx context.Context, containerID string, timeout time.Duration) (int64, error) {
-	waitCtx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
+	log := logger.FromContext(ctx)
+
+	waitCtx, cancelWaitCtx := context.WithTimeout(ctx, timeout)
+	defer cancelWaitCtx()
 
 	statusCh := s.dockerClient.ContainerWait(
 		waitCtx,
@@ -130,13 +134,19 @@ func (s *sandbox) waitContainer(ctx context.Context, containerID string, timeout
 		}
 		return status.StatusCode, nil
 	case <-waitCtx.Done():
-		//nolint:errcheck // not needed
-		s.dockerClient.ContainerStop(context.Background(), containerID, client.ContainerStopOptions{})
+		stopCtx, cancelStopCtx := context.WithTimeout(context.WithoutCancel(ctx), s.config.ContainerStopTimeout)
+		defer cancelStopCtx()
+
+		_, err := s.dockerClient.ContainerStop(stopCtx, containerID, client.ContainerStopOptions{})
+		if err != nil {
+			log.Error("container stop", zap.Error(err))
+		}
 		return 0, errs.TimeoutExceeded(fmt.Sprintf("execution timeout after %v", timeout))
 	}
 }
 
 func (s *sandbox) getLogs(ctx context.Context, containerID string) (string, string, error) {
+	log := logger.FromContext(ctx)
 	stdout, err := s.dockerClient.ContainerLogs(ctx, containerID, client.ContainerLogsOptions{
 		ShowStdout: true,
 		Follow:     false,
@@ -144,7 +154,13 @@ func (s *sandbox) getLogs(ctx context.Context, containerID string) (string, stri
 	if err != nil {
 		return "", "", err
 	}
-	defer stdout.Close()
+
+	defer func() {
+		err = stdout.Close()
+		if err != nil {
+			log.Error("close stdout", zap.Error(err))
+		}
+	}()
 
 	stdoutBytes, err := io.ReadAll(stdout)
 	if err != nil {
@@ -158,7 +174,12 @@ func (s *sandbox) getLogs(ctx context.Context, containerID string) (string, stri
 	if err != nil {
 		return "", "", err
 	}
-	defer stderr.Close()
+	defer func() {
+		err = stderr.Close()
+		if err != nil {
+			log.Error("close stderr", zap.Error(err))
+		}
+	}()
 
 	stderrBytes, err := io.ReadAll(stderr)
 	if err != nil {
@@ -169,12 +190,18 @@ func (s *sandbox) getLogs(ctx context.Context, containerID string) (string, stri
 }
 
 func (s *sandbox) cleanupContainer(ctx context.Context, containerID string) {
-	//nolint:errcheck // not needed
-	s.dockerClient.ContainerStop(ctx, containerID, client.ContainerStopOptions{})
-	//nolint:errcheck // not needed
-	s.dockerClient.ContainerRemove(ctx, containerID, client.ContainerRemoveOptions{
+	log := logger.FromContext(ctx)
+	_, err := s.dockerClient.ContainerStop(ctx, containerID, client.ContainerStopOptions{})
+	if err != nil {
+		log.Error("container stop", zap.Error(err))
+	}
+
+	_, err = s.dockerClient.ContainerRemove(ctx, containerID, client.ContainerRemoveOptions{
 		Force: true,
 	})
+	if err != nil {
+		log.Error("container remove", zap.Error(err))
+	}
 }
 
 func (s *sandbox) getImageAndCmd(language string) (string, []string, error) {

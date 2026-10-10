@@ -10,7 +10,7 @@ import (
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
-func (r *CodeVerificationRepository) UpdateCodeTemplate(ctx context.Context, verificationID string, codeTemplate string) (model.Verification, error) {
+func (r *CodeVerificationRepository) UpdateCodeTemplate(ctx context.Context, verificationID, codeTemplate string) (model.Verification, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 

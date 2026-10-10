@@ -39,6 +39,10 @@ tasks:
     deps: [ app:install-golangci-lint ]
     cmds:
       - '{{.GOLANGCI_LINT}} run ./... --config=.golangci.yml'
+  
+  app:lint-fix:
+    cmds:
+      - '{{.GOLANGCI_LINT}} run --fix'
 
   app:run:
     cmds:

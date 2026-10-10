@@ -14,7 +14,7 @@ type ExecutionResult struct {
 	Duration time.Duration
 }
 
-func NewResult(stdOut string, stdErr string, duration time.Duration) ExecutionResult {
+func NewResult(stdOut, stdErr string, duration time.Duration) ExecutionResult {
 	cleanedStdOut := utils_string.CleanString(stdOut)
 	cleanedStdErr := utils_string.CleanString(stdErr)
 	return ExecutionResult{

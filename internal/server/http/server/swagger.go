@@ -3,9 +3,8 @@ package server_http
 import (
 	"net/http"
 
-	httpSwagger "github.com/swaggo/http-swagger"
-
 	"github.com/markgredasov/viewcode-sandbox/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func (h *HTTPServer) RegisterSwagger() {
@@ -21,8 +20,7 @@ func (h *HTTPServer) RegisterSwagger() {
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			//nolint:errcheck // not needed
-			w.Write([]byte(docs.SwaggerInfo.ReadDoc()))
+			w.Write([]byte(docs.SwaggerInfo.ReadDoc())) // nolint:errcheck,gosec // todo
 		},
 	)
 }

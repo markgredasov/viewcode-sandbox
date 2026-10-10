@@ -12,6 +12,7 @@ type Config struct {
 	DockerNetwork        string        `envconfig:"NETWORK" required:"true"`
 	ContainerMemory      int64         `envconfig:"MEMORY_IN_MB" required:"true"`
 	ContainerExecTimeout time.Duration `envconfig:"EXEC_TIMEOUT" required:"true"`
+	ContainerStopTimeout time.Duration `envconfig:"STOP_TIMEOUT" required:"true"`
 
 	ConfigLanguagesFilepath string `envconfig:"CONFIG_LANGUAGES_FILEPATH"`
 	ConfigLanguages         LanguagesConfig

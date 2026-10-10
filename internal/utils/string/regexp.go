@@ -8,7 +8,7 @@ import (
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 )
 
-func ParseRegexpToInt(line string, regExpression string) (int, error) {
+func ParseRegexpToInt(line, regExpression string) (int, error) {
 	re := regexp.MustCompile(regExpression)
 	matches := re.FindStringSubmatch(line)
 
@@ -23,7 +23,7 @@ func ParseRegexpToInt(line string, regExpression string) (int, error) {
 	return 0, fmt.Errorf("no matches: %w", errs.ErrNotFound)
 }
 
-func ParseRegexpToFloat64(line string, regExpression string) (float64, error) {
+func ParseRegexpToFloat64(line, regExpression string) (float64, error) {
 	re := regexp.MustCompile(regExpression)
 	matches := re.FindStringSubmatch(line)
 
