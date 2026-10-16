@@ -21,7 +21,9 @@ func (r *CodeVerificationRepository) Create(ctx context.Context, verification mo
 		RETURNING id, problem_id, tests_code, created_at, total_number, lang;
 	`
 
-	row := r.pool.QueryRow(ctx, sqlQuery, verification.ID, verification.ProblemID,
+	conn := r.getter.DefaultTrOrDB(ctx, r.pool)
+
+	row := conn.QueryRow(ctx, sqlQuery, verification.ID, verification.ProblemID,
 		verification.Code, verification.TestsNumber, verification.Language)
 
 	var record VerificationRecord

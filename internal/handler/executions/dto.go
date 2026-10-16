@@ -18,14 +18,14 @@ type ExecuteDTOResponse struct {
 }
 
 type SubmissionDTO struct {
-	ID                string
-	ProblemID         string
-	TestsTotal        int
-	TestsPassed       int
-	Status            string
-	Language          string
-	ExecutionTimeInMS int
-	Timestamp         time.Time
+	ID                string    `json:"id"`
+	ProblemID         string    `json:"problem_id"`
+	TestsTotal        int       `json:"tests_total"`
+	TestsPassed       int       `json:"tests_passed"`
+	Status            string    `json:"status"`
+	Language          string    `json:"language"`
+	ExecutionTimeInMS int       `json:"execution_time_in_ms"`
+	Timestamp         time.Time `json:"timestamp"`
 }
 
 type ResultDTO struct {
