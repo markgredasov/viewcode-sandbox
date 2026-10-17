@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+  install:
+    desc: "Установить golangci-lint"
+    cmds:
+     - |
+      [ -f  {{.GOLANGCI_LINT}} ] || {
+        mkdir -p {{.BIN_DIR}}
+        echo "installing golangci-lint {{.GOLANGCI_LINT_VERSION}}"
+        GOBIN={{.BIN_DIR}} go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
+      }
+    status:
+      - test -x {{.GOLANGCI_LINT}}
+
+  run:
+    desc: "Запустить линтеры"
+    deps: [ install ]
+    cmds:
+      - '{{.GOLANGCI_LINT}} run ./... --config=.golangci.yml'
+  
+  fix:
+    desc: "Отформатировать код для соответствия линтерам-форматтерам"
+    cmds:
+      - '{{.GOLANGCI_LINT}} run --fix'

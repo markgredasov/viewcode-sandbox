@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  up:
+    desc: "Запустить базу данных"
+    cmds:
+      - docker compose up -d viewcode-sandbox-postgres
+
+  down:
+    desc: "Остановить базу данных"
+    cmds:
+      - docker compose down viewcode-sandbox-postgres
+
+  clear:
+    desc: "Остановить базу данных и удалить тома"
+    cmds:
+      - docker compose down -v viewcode-sandbox-postgres

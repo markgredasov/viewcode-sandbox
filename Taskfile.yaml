@@ -2,6 +2,12 @@ version: '3'
 
 dotenv: ['.env']
 
+includes:
+  db: ./taskfiles/Database.yaml
+  migrate: ./taskfiles/Migrate.yaml
+  lint: ./taskfiles/Lint.yaml
+  app: ./taskfiles/App.yaml
+
 vars:
   GO_VERSION: '1.26.3'
   GOLANGCI_LINT_VERSION: 'v2.12.2'
@@ -22,63 +28,3 @@ vars:
 env:
   PROJECT_ROOT: '{{.PROJECT_ROOT}}'
   SANDBOX_DOCKER_CONFIG_LANGUAGES_FILEPATH: '{{.PROJECT_ROOT}}/config_images.yaml'
-
-tasks:
-  lint:install:
-    cmds:
-     - |
-      [ -f  {{.GOLANGCI_LINT}} ] || {
-        mkdir -p {{.BIN_DIR}}
-        echo "installing golangci-lint {{.GOLANGCI_LINT_VERSION}}"
-        GOBIN={{.BIN_DIR}} go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
-      }
-    status:
-      - test -x {{.GOLANGCI_LINT}}
-
-  lint:run:
-    deps: [ lint:install ]
-    cmds:
-      - '{{.GOLANGCI_LINT}} run ./... --config=.golangci.yml'
-  
-  lint:fix:
-    cmds:
-      - '{{.GOLANGCI_LINT}} run --fix'
-
-  app:run:
-    cmds:
-      - go run ./cmd/app/main.go
-    env:
-      LOGGER_LEVEL: '{{.LOGGER_LEVEL}}'
-      LOGGER_FOLDER: '{{.LOGGER_FOLDER | default "./out/logs/"}}'
-
-  db:migrate-create:
-    cmds:
-      - goose postgres "host={{.POSTGRES_HOST}} user={{.POSTGRES_USER}} database={{.POSTGRES_DB}} password={{.POSTGRES_PASSWORD}} sslmode=disable" -dir {{.PROJECT_ROOT}}/migrations create {{.NAME}} sql
-
-  db:migrate-status:
-    cmds:
-      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations status
-
-  db:migrate-up:
-    cmds:
-      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations up
-
-  db:migrate-down:
-    cmds:
-      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations -v down
-
-  db:up:
-    cmds:
-      - docker compose up -d viewcode-sandbox-postgres
-
-  db:down:
-    cmds:
-      - docker compose down viewcode-sandbox-postgres
-
-  db:clear:
-    cmds:
-      - docker compose down -v viewcode-sandbox-postgres
-
-  swagger:run:
-    cmds:
-      - docker compose run --rm swagger init -g cmd/app/main.go -o docs --parseInternal --parseDependency

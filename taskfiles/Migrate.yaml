@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+  create:
+    desc: "Создать миграцию. Обязательный параметр NAME - название миграции"
+    requires:
+      vars:
+        - NAME
+    cmds:
+      - goose postgres "host={{.POSTGRES_HOST}} user={{.POSTGRES_USER}} database={{.POSTGRES_DB}} password={{.POSTGRES_PASSWORD}} sslmode=disable" -dir {{.PROJECT_ROOT}}/migrations create {{.NAME}} sql
+
+  status:
+    desc: "Проверить статус миграции"
+    cmds:
+      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations status
+
+  up:
+    desc: "Накатить все миграции"
+    cmds:
+      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations up
+
+  down:
+    desc: "Откатиться на одну миграцию назад"
+    cmds:
+      - goose postgres "host=${POSTGRES_HOST} user=${POSTGRES_USER} database=${POSTGRES_DB} password=${POSTGRES_PASSWORD} sslmode=disable" -dir ${PROJECT_ROOT}/migrations -v down

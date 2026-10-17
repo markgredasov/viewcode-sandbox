@@ -1,0 +1,14 @@
+version: '3'
+
+tasks:
+  run:
+    desc: "Запуск приложения viewcode-sandbox"
+    cmds:
+      - go run ./cmd/app/main.go
+    env:
+      LOGGER_LEVEL: '{{.LOGGER_LEVEL}}'
+
+  swagger:run:
+    desc: "Обновить OpenAPI спецификацию"
+    cmds:
+      - docker compose run --rm swagger init -g cmd/app/main.go -o docs --parseInternal --parseDependency
