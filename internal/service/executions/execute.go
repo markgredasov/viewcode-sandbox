@@ -3,6 +3,7 @@ package service_executions
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -72,7 +73,7 @@ func (s *ExecutionsService) runTests(ctx context.Context, subm submission.Submis
 	}
 
 	if res.StdErr != "" {
-		err = errs.Internal("stderr is not empty", errs.ErrInternal)
+		err = errs.Internal(fmt.Sprintf("stderr is not empty: %s", res.StdErr), errs.ErrInternal)
 		_, pErr := s.submissionsPort.SetResult(ctx, subm.ID.String(), submission.StatusInternal, subm.TestsPassed, 0)
 		if pErr != nil {
 			return execution.ExecutionResult{}, errors.Join(err, pErr)

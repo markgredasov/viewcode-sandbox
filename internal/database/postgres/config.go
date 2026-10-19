@@ -1,4 +1,4 @@
-package database_postgres
+package dbpostgres
 
 import (
 	"fmt"

@@ -8,21 +8,20 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
 func (r *Repository) Create(ctx context.Context, problem model.Problem) (model.Problem, error) {
-	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
-	defer cancel()
-
 	sqlQuery := `
 		INSERT INTO public.problems (id, name, description, complexity_rate, categories)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, name, description, created_at, langs, complexity_rate, categories;
 	`
 
-	rows, err := r.pool.Query(ctx, sqlQuery, problem.ProblemID, problem.Name, problem.Description,
+	conn := dbpostgres.ExecutorFromContext(ctx, r.pool)
+	rows, err := conn.Query(ctx, sqlQuery, problem.ProblemID, problem.Name, problem.Description,
 		problem.ComplexityRate.String(), model.ConvertFromValueObjsArray(problem.Categories))
 	if err != nil {
 		return model.Problem{}, errs.Internal("query rows", err)

@@ -2,12 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"os"
 
-	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
-	"github.com/avito-tech/go-transaction-manager/trm/v2"
-	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"go.uber.org/zap"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/app/closer"
@@ -29,8 +25,8 @@ import (
 )
 
 type diContainer struct {
-	pool      *dbpostgres.ConnectionPool
-	txManager trm.Manager
+	pool      *dbpostgres.Pool
+	txManager *dbpostgres.TxManager
 
 	adapterSandbox     *sandbox.Adapter
 	adapterParser      *parser.Adapter
@@ -71,7 +67,7 @@ func (d *diContainer) initPool(ctx context.Context) {
 	d.pool = pool
 }
 
-func (d *diContainer) Pool() *dbpostgres.ConnectionPool {
+func (d *diContainer) Pool() *dbpostgres.Pool {
 	if d.pool == nil {
 		panic("connection pool must be initialized with ctx before all initializations in container")
 	}
@@ -79,17 +75,10 @@ func (d *diContainer) Pool() *dbpostgres.ConnectionPool {
 	return d.pool
 }
 
-func (d *diContainer) TxManager() trm.Manager {
+func (d *diContainer) TxManager() *dbpostgres.TxManager {
 	if d.txManager == nil {
-		factory := trmpgx.NewDefaultFactory(d.Pool())
-
-		m, err := manager.New(factory)
-		if err != nil {
-			err = fmt.Errorf("init transaction manager: %w", err)
-			panic(err)
-		}
-
-		d.txManager = m
+		tx := dbpostgres.NewTxManager(d.Pool())
+		d.txManager = tx
 	}
 
 	return d.txManager
@@ -135,7 +124,7 @@ func (d *diContainer) AdapterSubmissions() *submissionsingegration.Adapter {
 
 func (d *diContainer) VerificationsRepository() *verifications.CodeVerificationRepository {
 	if d.verificationsRepository == nil {
-		d.verificationsRepository = verifications.NewCodeVerificationRepository(d.Pool(), trmpgx.DefaultCtxGetter)
+		d.verificationsRepository = verifications.NewCodeVerificationRepository(d.Pool())
 	}
 
 	return d.verificationsRepository

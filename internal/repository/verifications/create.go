@@ -7,21 +7,19 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
 func (r *CodeVerificationRepository) Create(ctx context.Context, verification model.Verification) (model.Verification, error) {
-	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
-	defer cancel()
-
 	sqlQuery := `
 		INSERT INTO public.code_verification (id, problem_id, tests_code, total_number, lang)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, problem_id, tests_code, created_at, total_number, lang;
 	`
 
-	conn := r.getter.DefaultTrOrDB(ctx, r.pool)
+	conn := dbpostgres.ExecutorFromContext(ctx, r.pool)
 
 	row := conn.QueryRow(ctx, sqlQuery, verification.ID, verification.ProblemID,
 		verification.Code, verification.TestsNumber, verification.Language)

@@ -7,14 +7,12 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
 func (r *CodeVerificationRepository) UpdateCodeTemplate(ctx context.Context, verificationID, codeTemplate string) (model.Verification, error) {
-	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
-	defer cancel()
-
 	sqlQuery := `
 		UPDATE public.code_verification
 		SET code_template = $1
@@ -22,7 +20,9 @@ func (r *CodeVerificationRepository) UpdateCodeTemplate(ctx context.Context, ver
 		RETURNING id, problem_id, tests_code, created_at, total_number, lang, code_template;
 	`
 
-	row := r.pool.QueryRow(ctx, sqlQuery, codeTemplate, verificationID)
+	conn := dbpostgres.ExecutorFromContext(ctx, r.pool)
+
+	row := conn.QueryRow(ctx, sqlQuery, codeTemplate, verificationID)
 
 	var record VerificationRecord
 	err := row.Scan(&record.ID, &record.ProblemID, &record.Code, &record.CreatedAt, &record.TestsNumber, &record.Language, &record.CodeTemplate)

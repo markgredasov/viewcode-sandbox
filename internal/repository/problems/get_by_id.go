@@ -6,21 +6,20 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
 func (r *Repository) GetByID(ctx context.Context, id string) (model.Problem, error) {
-	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
-	defer cancel()
-
 	sqlQuery := `
 		SELECT id, name, description, created_at, langs, complexity_rate, categories
 		FROM problems
 		WHERE id = $1;
 	`
 
-	rows, err := r.pool.Query(ctx, sqlQuery, id)
+	conn := dbpostgres.ExecutorFromContext(ctx, r.pool)
+	rows, err := conn.Query(ctx, sqlQuery, id)
 	if err != nil {
 		return model.Problem{}, errs.Internal("query row", err)
 	}

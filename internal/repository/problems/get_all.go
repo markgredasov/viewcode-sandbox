@@ -6,14 +6,12 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 )
 
 func (r *Repository) GetAll(ctx context.Context, complexity string, categories []string) ([]model.Problem, error) {
-	ctx, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
-	defer cancel()
-
 	query := sq.
 		Select("id, name, description, created_at, langs, complexity_rate, categories").
 		From("problems").
@@ -32,7 +30,8 @@ func (r *Repository) GetAll(ctx context.Context, complexity string, categories [
 		return []model.Problem{}, errs.Internal("building sql query", err)
 	}
 
-	rows, err := r.pool.Query(ctx, sqlQuery, args...)
+	conn := dbpostgres.ExecutorFromContext(ctx, r.pool)
+	rows, err := conn.Query(ctx, sqlQuery, args...)
 	if err != nil {
 		return []model.Problem{}, errs.Internal("rows query", err)
 	}
