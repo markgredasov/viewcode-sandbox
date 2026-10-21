@@ -1,4 +1,4 @@
-package utils_string
+package stringutils
 
 import (
 	"encoding/json"

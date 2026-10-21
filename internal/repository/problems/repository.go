@@ -1,6 +1,6 @@
 package problems
 
-import database_postgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
+import database_postgres "github.com/markgredasov/viewcode-sandbox/internal/platform/database/postgres"
 
 type Repository struct {
 	pool *database_postgres.Pool

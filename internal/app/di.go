@@ -5,16 +5,18 @@ import (
 	"os"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/app/closer"
-	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
+	"github.com/markgredasov/viewcode-sandbox/internal/client/sandbox"
+	sandboxconfig "github.com/markgredasov/viewcode-sandbox/internal/client/sandbox/config"
+	submissionsclient "github.com/markgredasov/viewcode-sandbox/internal/client/submissions"
 	executionshandler "github.com/markgredasov/viewcode-sandbox/internal/handler/executions"
 	problemshandler "github.com/markgredasov/viewcode-sandbox/internal/handler/problems"
 	verificationshandler "github.com/markgredasov/viewcode-sandbox/internal/handler/verifications"
-	"github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox"
-	sandboxconfig "github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox/config"
-	submissionsingegration "github.com/markgredasov/viewcode-sandbox/internal/integration/submissions"
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/platform/database/postgres"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/repository/problems"
 	"github.com/markgredasov/viewcode-sandbox/internal/repository/verifications"
 	httpserver "github.com/markgredasov/viewcode-sandbox/internal/server/http/server"
@@ -25,12 +27,13 @@ import (
 )
 
 type diContainer struct {
+	log       *logger.Logger
 	pool      *dbpostgres.Pool
 	txManager *dbpostgres.TxManager
 
 	adapterSandbox     *sandbox.Adapter
 	adapterParser      *parser.Adapter
-	adapterSubmissions *submissionsingegration.Adapter
+	adapterSubmissions *submissionsclient.Adapter
 
 	verificationsRepository *verifications.CodeVerificationRepository
 	verificationsService    *verificationsservice.VerificationsService
@@ -44,8 +47,10 @@ type diContainer struct {
 	routes []httpserver.Route
 }
 
-func newDIContainer() *diContainer {
-	d := &diContainer{}
+func newDIContainer(log *logger.Logger) *diContainer {
+	d := &diContainer{
+		log: log,
+	}
 
 	return d
 }
@@ -89,7 +94,8 @@ func (d *diContainer) AdapterSandbox() *sandbox.Adapter {
 		cfg := sandboxconfig.NewConfigMust()
 		adapter, err := sandbox.NewAdapter(cfg)
 		if err != nil {
-			panic(err)
+			d.log.Error("failed to connect to sandbox", zap.Error(err), zap.String("docker_host", cfg.DockerHost),
+				zap.String("docker_network", cfg.DockerNetwork))
 		}
 		d.adapterSandbox = adapter
 	}
@@ -101,7 +107,7 @@ func (d *diContainer) AdapterParser() *parser.Adapter {
 	if d.adapterParser == nil {
 		adapter, err := parser.NewAdapter()
 		if err != nil {
-			panic(err)
+			d.log.Error("failed to create parser adapter", zap.Error(err))
 		}
 		d.adapterParser = adapter
 	}
@@ -109,12 +115,12 @@ func (d *diContainer) AdapterParser() *parser.Adapter {
 	return d.adapterParser
 }
 
-func (d *diContainer) AdapterSubmissions() *submissionsingegration.Adapter {
+func (d *diContainer) AdapterSubmissions() *submissionsclient.Adapter {
 	if d.adapterSubmissions == nil {
-		cfg := submissionsingegration.NewConfigMust()
-		adapter, err := submissionsingegration.NewAdapter(cfg)
+		cfg := submissionsclient.NewConfigMust()
+		adapter, err := submissionsclient.NewAdapter(cfg, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-			panic(err)
+			d.log.Error("failed to connect to submissions", zap.Error(err), zap.String("address", cfg.Address))
 		}
 		d.adapterSubmissions = adapter
 	}

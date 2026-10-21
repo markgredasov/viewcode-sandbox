@@ -3,10 +3,10 @@ package handler_problems
 import (
 	"net/http"
 
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/httputils"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
 	_ "github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
-	utils_http "github.com/markgredasov/viewcode-sandbox/internal/utils/http"
 )
 
 // GetAll godoc
@@ -25,8 +25,8 @@ func (h *ProblemsHTTPHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	log := logger.FromContext(ctx)
 	responseHandler := response.NewHTTPResponseHandler(log, w)
 
-	complexity := utils_http.GetStringQueryParam(r, "complexity")
-	categories := utils_http.GetStringArrayQueryParam(r, "categories")
+	complexity := httputils.GetStringQueryParam(r, "complexity")
+	categories := httputils.GetStringArrayQueryParam(r, "categories")
 
 	problems, err := h.problemsService.GetAll(ctx, complexity, categories)
 	if err != nil {

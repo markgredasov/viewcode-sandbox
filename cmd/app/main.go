@@ -7,7 +7,7 @@ import (
 	"syscall"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/app"
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 )
 
 // @title 		  viewcode
@@ -34,5 +34,5 @@ func main() {
 
 	ctx = log.InContext(ctx)
 
-	app.New(ctx).Run(ctx)
+	app.New(ctx, log).Run(ctx)
 }

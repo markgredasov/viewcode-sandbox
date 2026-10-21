@@ -8,7 +8,7 @@ import (
 
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
-	utils_string "github.com/markgredasov/viewcode-sandbox/internal/utils/string"
+	stringutils "github.com/markgredasov/viewcode-sandbox/internal/platform/stringutils"
 )
 
 const (
@@ -35,14 +35,14 @@ func (p *parserLanguagePython) Parse(stdOut string) (model.TestsResult, error) {
 		}
 	}
 
-	testsFailed, err := utils_string.ParseRegexpToInt(lastLine, testsFailedRegexp)
+	testsFailed, err := stringutils.ParseRegexpToInt(lastLine, testsFailedRegexp)
 	if err != nil {
 		if !errors.Is(err, errs.ErrNotFound) {
 			return model.TestsResult{}, fmt.Errorf("testsFailed: %w", err)
 		}
 	}
 
-	testsPassed, err := utils_string.ParseRegexpToInt(lastLine, testsOkRegexp)
+	testsPassed, err := stringutils.ParseRegexpToInt(lastLine, testsOkRegexp)
 	if err != nil {
 		if !errors.Is(err, errs.ErrNotFound) {
 			return model.TestsResult{}, fmt.Errorf("testsPassed: %w", err)

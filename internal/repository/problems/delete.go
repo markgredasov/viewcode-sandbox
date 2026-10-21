@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/platform/database/postgres"
 )
 
 func (r *Repository) Delete(ctx context.Context, id string) error {

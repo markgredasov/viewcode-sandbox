@@ -1,4 +1,4 @@
-package submissionsingegration
+package submissionsclient
 
 import (
 	"context"
@@ -6,28 +6,21 @@ import (
 
 	submissions_v1 "github.com/markgredasov/viewcode-submissions/pkg/api/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
-	grpcclient "github.com/markgredasov/viewcode-sandbox/internal/client/grpc"
 )
 
 type client struct {
-	address string
-	conn    *grpcclient.Conn
-	api     submissions_v1.SubmissionsServiceClient
+	conn *grpc.ClientConn
+	api  submissions_v1.SubmissionsServiceClient
 }
 
-func newClient(addr string) (*client, error) {
-	cfg := grpcclient.NewConfig(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpcclient.NewConn(cfg)
+func newClient(addr string, opts ...grpc.DialOption) (*client, error) {
+	conn, err := grpc.NewClient(addr, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create client: %s: %w", addr, err)
+		return nil, fmt.Errorf("create gRPC connection to %s: %w", addr, err)
 	}
-
 	return &client{
-		address: addr,
-		conn:    conn,
-		api:     submissions_v1.NewSubmissionsServiceClient(conn.Conn()),
+		conn: conn,
+		api:  submissions_v1.NewSubmissionsServiceClient(conn),
 	}, nil
 }
 

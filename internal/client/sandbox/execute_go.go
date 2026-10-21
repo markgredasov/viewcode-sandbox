@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 )
 
 func (s *sandbox) executeTestsLanguageGo(ctx context.Context, request executionRequest) (*executionResult, error) {

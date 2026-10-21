@@ -3,8 +3,8 @@ package handler_executions
 import (
 	"net/http"
 
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/request"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
 )

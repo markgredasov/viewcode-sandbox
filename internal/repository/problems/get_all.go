@@ -6,9 +6,9 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 
-	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/platform/database/postgres"
 )
 
 func (r *Repository) GetAll(ctx context.Context, complexity string, categories []string) ([]model.Problem, error) {

@@ -1,4 +1,4 @@
-package submissionsingegration
+package submissionsclient
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"math"
 
 	submissions_v1 "github.com/markgredasov/viewcode-submissions/pkg/api/v1"
+	"google.golang.org/grpc"
 
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
@@ -64,8 +65,8 @@ type Adapter struct {
 	client *client
 }
 
-func NewAdapter(cfg Config) (*Adapter, error) {
-	cl, err := newClient(cfg.Address)
+func NewAdapter(cfg Config, opts ...grpc.DialOption) (*Adapter, error) {
+	cl, err := newClient(cfg.Address, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("create adapter: %w", err)
 	}

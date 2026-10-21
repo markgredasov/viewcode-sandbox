@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/app/closer"
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/middleware"
 	server_http "github.com/markgredasov/viewcode-sandbox/internal/server/http/server"
 )
@@ -18,9 +18,9 @@ type App struct {
 	diContainer *diContainer
 }
 
-func New(ctx context.Context) *App {
+func New(ctx context.Context, log *logger.Logger) *App {
 	a := &App{
-		diContainer: newDIContainer(),
+		diContainer: newDIContainer(log),
 	}
 
 	a.initDeps(ctx)

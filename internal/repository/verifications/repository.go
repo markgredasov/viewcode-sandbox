@@ -1,7 +1,7 @@
 package verifications
 
 import (
-	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/platform/database/postgres"
 )
 
 type CodeVerificationRepository struct {

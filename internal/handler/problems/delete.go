@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/httputils"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
-	utils_http "github.com/markgredasov/viewcode-sandbox/internal/utils/http"
 )
 
 // Delete godoc
@@ -25,7 +25,7 @@ func (h *ProblemsHTTPHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	log := logger.FromContext(ctx)
 	responseHandler := response.NewHTTPResponseHandler(log, w)
 
-	problemID, err := utils_http.GetUUIDPathValue(r, "id")
+	problemID, err := httputils.GetUUIDPathValue(r, "id")
 	if err != nil {
 		err = fmt.Errorf("get problem id: %w", err)
 		responseHandler.ErrorResponse(err, err.Error())

@@ -5,7 +5,7 @@ import (
 
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/markgredasov/viewcode-sandbox/internal/model/submission"
-	utils_string "github.com/markgredasov/viewcode-sandbox/internal/utils/string"
+	stringutils "github.com/markgredasov/viewcode-sandbox/internal/platform/stringutils"
 )
 
 type ExecutionResult struct {
@@ -15,8 +15,8 @@ type ExecutionResult struct {
 }
 
 func NewResult(stdOut, stdErr string, duration time.Duration) ExecutionResult {
-	cleanedStdOut := utils_string.CleanString(stdOut)
-	cleanedStdErr := utils_string.CleanString(stdErr)
+	cleanedStdOut := stringutils.CleanString(stdOut)
+	cleanedStdErr := stringutils.CleanString(stdErr)
 	return ExecutionResult{
 		StdOut:   cleanedStdOut,
 		StdErr:   cleanedStdErr,

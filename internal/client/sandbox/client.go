@@ -3,15 +3,15 @@ package sandbox
 import (
 	"github.com/moby/moby/client"
 
-	sandbox_config "github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox/config"
+	sandboxconfig "github.com/markgredasov/viewcode-sandbox/internal/client/sandbox/config"
 )
 
 type sandbox struct {
-	config       sandbox_config.Config
+	config       sandboxconfig.Config
 	dockerClient *client.Client
 }
 
-func newSandbox(config sandbox_config.Config) (*sandbox, error) {
+func newSandbox(config sandboxconfig.Config) (*sandbox, error) {
 	client, err := client.New(
 		client.FromEnv,
 		client.WithHost(config.DockerHost),

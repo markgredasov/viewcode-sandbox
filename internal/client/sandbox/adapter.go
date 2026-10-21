@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	sandboxconfig "github.com/markgredasov/viewcode-sandbox/internal/client/sandbox/config"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
-	sandbox_config "github.com/markgredasov/viewcode-sandbox/internal/integration/sandbox/config"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/markgredasov/viewcode-sandbox/internal/model/execution"
 )
@@ -40,7 +40,7 @@ type Adapter struct {
 	sandbox *sandbox
 }
 
-func NewAdapter(config sandbox_config.Config) (*Adapter, error) {
+func NewAdapter(config sandboxconfig.Config) (*Adapter, error) {
 	sandbox, err := newSandbox(config)
 	if err != nil {
 		return nil, fmt.Errorf("new adapter: %w", err)

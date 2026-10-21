@@ -1,4 +1,4 @@
-package submissionsingegration
+package submissionsclient
 
 import (
 	"fmt"

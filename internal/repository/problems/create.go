@@ -8,9 +8,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
-	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/database/postgres"
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
+	dbpostgres "github.com/markgredasov/viewcode-sandbox/internal/platform/database/postgres"
 )
 
 func (r *Repository) Create(ctx context.Context, problem model.Problem) (model.Problem, error) {

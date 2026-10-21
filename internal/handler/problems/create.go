@@ -3,7 +3,7 @@ package handler_problems
 import (
 	"net/http"
 
-	"github.com/markgredasov/viewcode-sandbox/internal/logger"
+	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/request"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
 )
