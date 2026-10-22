@@ -24,6 +24,8 @@ func newClient(addr string, opts ...grpc.DialOption) (*client, error) {
 	}, nil
 }
 
+func (c *client) close() error { return c.conn.Close() }
+
 func (c *client) CreateSubmission(ctx context.Context, in *submissions_v1.CreateRequest) (*submissions_v1.CreateResponse, error) {
 	return c.api.Create(ctx, in)
 }

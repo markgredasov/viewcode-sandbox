@@ -11,7 +11,6 @@ import (
 	"github.com/moby/moby/api/types/container"
 	"github.com/moby/moby/api/types/mount"
 	"github.com/moby/moby/client"
-	"go.uber.org/zap"
 
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
@@ -140,7 +139,7 @@ func (s *sandbox) waitContainer(ctx context.Context, containerID string, timeout
 
 		_, err := s.dockerClient.ContainerStop(stopCtx, containerID, client.ContainerStopOptions{})
 		if err != nil {
-			log.Error("container stop", zap.Error(err))
+			log.Error("container stop", logger.Err(err))
 		}
 		return 0, errs.TimeoutExceeded(fmt.Sprintf("execution timeout after %v", timeout))
 	}
@@ -159,7 +158,7 @@ func (s *sandbox) getLogs(ctx context.Context, containerID string) (string, stri
 	defer func() {
 		err = stdout.Close()
 		if err != nil {
-			log.Error("close stdout", zap.Error(err))
+			log.Error("close stdout", logger.Err(err))
 		}
 	}()
 
@@ -178,7 +177,7 @@ func (s *sandbox) getLogs(ctx context.Context, containerID string) (string, stri
 	defer func() {
 		err = stderr.Close()
 		if err != nil {
-			log.Error("close stderr", zap.Error(err))
+			log.Error("close stderr", logger.Err(err))
 		}
 	}()
 
@@ -194,14 +193,14 @@ func (s *sandbox) cleanupContainer(ctx context.Context, containerID string) {
 	log := logger.FromContext(ctx)
 	_, err := s.dockerClient.ContainerStop(ctx, containerID, client.ContainerStopOptions{})
 	if err != nil {
-		log.Error("container stop", zap.Error(err))
+		log.Error("container stop", logger.Err(err))
 	}
 
 	_, err = s.dockerClient.ContainerRemove(ctx, containerID, client.ContainerRemoveOptions{
 		Force: true,
 	})
 	if err != nil {
-		log.Error("container remove", zap.Error(err))
+		log.Error("container remove", logger.Err(err))
 	}
 }
 

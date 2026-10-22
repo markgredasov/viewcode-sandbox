@@ -1,7 +1,6 @@
 package sandbox_config
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
@@ -18,7 +17,7 @@ type Config struct {
 	ConfigLanguages         LanguagesConfig
 }
 
-func newConfig() (Config, error) {
+func NewConfig() (Config, error) {
 	var config Config
 
 	if err := envconfig.Process("SANDBOX_DOCKER", &config); err != nil {
@@ -32,14 +31,4 @@ func newConfig() (Config, error) {
 	config.ConfigLanguages = languagesConfig
 
 	return config, nil
-}
-
-func NewConfigMust() Config {
-	config, err := newConfig()
-	if err != nil {
-		err = fmt.Errorf("new sandbox config: %w", err)
-		panic(err)
-	}
-
-	return config
 }

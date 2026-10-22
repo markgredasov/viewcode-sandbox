@@ -2,10 +2,12 @@ package app
 
 import (
 	"context"
-	"os"
+	"errors"
+	"fmt"
+	"time"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/app/closer"
@@ -27,7 +29,8 @@ import (
 )
 
 type diContainer struct {
-	log       *logger.Logger
+	log *logger.Logger
+
 	pool      *dbpostgres.Pool
 	txManager *dbpostgres.TxManager
 
@@ -38,30 +41,81 @@ type diContainer struct {
 	verificationsRepository *verifications.CodeVerificationRepository
 	verificationsService    *verificationsservice.VerificationsService
 	verificationsHandler    *verificationshandler.VerificationsHTTPHandler
-	executionsService       *executionsservice.ExecutionsService
-	executionsHandler       *executionshandler.Handler
-	problemsRepository      *problems.Repository
-	problemsService         *problemsservice.ProblemsService
-	problemsHandler         *problemshandler.ProblemsHTTPHandler
 
-	routes []httpserver.Route
+	executionsService *executionsservice.ExecutionsService
+	executionsHandler *executionshandler.Handler
+
+	problemsRepository *problems.Repository
+	problemsService    *problemsservice.ProblemsService
+	problemsHandler    *problemshandler.ProblemsHTTPHandler
 }
 
 func newDIContainer(log *logger.Logger) *diContainer {
-	d := &diContainer{
-		log: log,
-	}
-
-	return d
+	return &diContainer{log: log}
 }
 
-func (d *diContainer) initPool(ctx context.Context) {
-	log := logger.FromContext(ctx)
-	config := dbpostgres.NewConfigMust()
-	pool, err := dbpostgres.NewConnectionPool(ctx, config)
+func (d *diContainer) Pool() *dbpostgres.Pool {
+	if d.pool == nil {
+		panic("di: pool is not initialized — check initDeps order")
+	}
+	return d.pool
+}
+
+func (d *diContainer) TxManager() *dbpostgres.TxManager {
+	if d.txManager == nil {
+		panic("di: tx manager is not initialized — check initDeps order")
+	}
+	return d.txManager
+}
+
+func (d *diContainer) AdapterSandbox() *sandbox.Adapter {
+	if d.adapterSandbox == nil {
+		panic("di: sandbox adapter is not initialized — check initDeps order")
+	}
+	return d.adapterSandbox
+}
+
+func (d *diContainer) AdapterParser() *parser.Adapter {
+	if d.adapterParser == nil {
+		panic("di: parser adapter is not initialized — check initDeps order")
+	}
+	return d.adapterParser
+}
+
+func (d *diContainer) AdapterSubmissions() *submissionsclient.Adapter {
+	if d.adapterSubmissions == nil {
+		panic("di: submissions adapter is not initialized — check initDeps order")
+	}
+	return d.adapterSubmissions
+}
+
+func (d *diContainer) VerificationsRepository() *verifications.CodeVerificationRepository {
+	if d.verificationsRepository == nil {
+		panic("di: verifications repository is not initialized — check initDeps order")
+	}
+	return d.verificationsRepository
+}
+
+func (d *diContainer) ExecutionsService() *executionsservice.ExecutionsService {
+	if d.executionsService == nil {
+		panic("di: executions service is not initialized — check initDeps order")
+	}
+	return d.executionsService
+}
+
+func (d *diContainer) initPool(ctx context.Context) error {
+	if d.pool != nil {
+		return nil
+	}
+
+	cfg, err := dbpostgres.NewConfig()
 	if err != nil {
-		log.Error("initialize pool", zap.Error(err))
-		os.Exit(1)
+		return fmt.Errorf("load config: %w", err)
+	}
+
+	pool, err := dbpostgres.NewConnectionPool(ctx, cfg)
+	if err != nil {
+		return fmt.Errorf("create connection pool: %w", err)
 	}
 
 	closer.Add("connection pool", func(_ context.Context) error {
@@ -70,145 +124,174 @@ func (d *diContainer) initPool(ctx context.Context) {
 	})
 
 	d.pool = pool
+	return nil
 }
 
-func (d *diContainer) Pool() *dbpostgres.Pool {
-	if d.pool == nil {
-		panic("connection pool must be initialized with ctx before all initializations in container")
+func (d *diContainer) initTxManager(_ context.Context) error {
+	if d.txManager != nil {
+		return nil
+	}
+	d.txManager = dbpostgres.NewTxManager(d.Pool())
+	return nil
+}
+
+func (d *diContainer) initAdapterSandbox(_ context.Context) error {
+	if d.adapterSandbox != nil {
+		return nil
 	}
 
-	return d.pool
-}
-
-func (d *diContainer) TxManager() *dbpostgres.TxManager {
-	if d.txManager == nil {
-		tx := dbpostgres.NewTxManager(d.Pool())
-		d.txManager = tx
+	cfg, err := sandboxconfig.NewConfig()
+	if err != nil {
+		return fmt.Errorf("load config: %w", err)
 	}
 
-	return d.txManager
-}
-
-func (d *diContainer) AdapterSandbox() *sandbox.Adapter {
-	if d.adapterSandbox == nil {
-		cfg := sandboxconfig.NewConfigMust()
-		adapter, err := sandbox.NewAdapter(cfg)
-		if err != nil {
-			d.log.Error("failed to connect to sandbox", zap.Error(err), zap.String("docker_host", cfg.DockerHost),
-				zap.String("docker_network", cfg.DockerNetwork))
-		}
-		d.adapterSandbox = adapter
+	adapter, err := sandbox.NewAdapter(cfg)
+	if err != nil {
+		return fmt.Errorf("create sandbox adapter (host=%s, network=%s): %w",
+			cfg.DockerHost, cfg.DockerNetwork, err)
 	}
 
-	return d.adapterSandbox
+	d.adapterSandbox = adapter
+	return nil
 }
 
-func (d *diContainer) AdapterParser() *parser.Adapter {
-	if d.adapterParser == nil {
-		adapter, err := parser.NewAdapter()
-		if err != nil {
-			d.log.Error("failed to create parser adapter", zap.Error(err))
-		}
-		d.adapterParser = adapter
+func (d *diContainer) initAdapterParser(_ context.Context) error {
+	if d.adapterParser != nil {
+		return nil
 	}
 
-	return d.adapterParser
-}
-
-func (d *diContainer) AdapterSubmissions() *submissionsclient.Adapter {
-	if d.adapterSubmissions == nil {
-		cfg := submissionsclient.NewConfigMust()
-		adapter, err := submissionsclient.NewAdapter(cfg, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if err != nil {
-			d.log.Error("failed to connect to submissions", zap.Error(err), zap.String("address", cfg.Address))
-		}
-		d.adapterSubmissions = adapter
+	adapter, err := parser.NewAdapter()
+	if err != nil {
+		return fmt.Errorf("create parser adapter: %w", err)
 	}
 
-	return d.adapterSubmissions
+	d.adapterParser = adapter
+	return nil
 }
 
-func (d *diContainer) VerificationsRepository() *verifications.CodeVerificationRepository {
-	if d.verificationsRepository == nil {
-		d.verificationsRepository = verifications.NewCodeVerificationRepository(d.Pool())
+func (d *diContainer) initAdapterSubmissions(_ context.Context) error {
+	if d.adapterSubmissions != nil {
+		return nil
 	}
 
-	return d.verificationsRepository
+	cfg, err := submissionsclient.NewConfig()
+	if err != nil {
+		return fmt.Errorf("load config: %w", err)
+	}
+
+	adapter, err := submissionsclient.NewAdapter(cfg,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff: backoff.Config{
+				BaseDelay:  200 * time.Millisecond,
+				Multiplier: 1.6,
+				Jitter:     0.2,
+				MaxDelay:   5 * time.Second,
+			},
+		}),
+	)
+	if err != nil {
+		return fmt.Errorf("create submissions adapter (addr=%s): %w", cfg.Address, err)
+	}
+
+	closer.Add("submissions adapter", func(_ context.Context) error {
+		return adapter.Close()
+	})
+
+	d.adapterSubmissions = adapter
+	return nil
 }
 
-func (d *diContainer) VerificationsService() *verificationsservice.VerificationsService {
+func (d *diContainer) initVerificationsRepository(_ context.Context) error {
+	if d.verificationsRepository != nil {
+		return nil
+	}
+	d.verificationsRepository = verifications.NewCodeVerificationRepository(d.Pool())
+	return nil
+}
+
+func (d *diContainer) initVerificationsService(_ context.Context) error {
+	if d.verificationsService != nil {
+		return nil
+	}
+	d.verificationsService = verificationsservice.NewVerificationsService(d.VerificationsRepository())
+	return nil
+}
+
+func (d *diContainer) initVerificationsHandler(_ context.Context) error {
+	if d.verificationsHandler != nil {
+		return nil
+	}
+	d.verificationsHandler = verificationshandler.NewVerificationsHTTPHandler(
+		d.verificationsServiceOrPanic(),
+	)
+	return nil
+}
+
+func (d *diContainer) verificationsServiceOrPanic() *verificationsservice.VerificationsService {
 	if d.verificationsService == nil {
-		d.verificationsService = verificationsservice.NewVerificationsService(d.VerificationsRepository())
+		panic("di: verifications service is not initialized — check initDeps order")
 	}
-
 	return d.verificationsService
 }
 
-func (d *diContainer) VerificationsHandler() *verificationshandler.VerificationsHTTPHandler {
-	if d.verificationsHandler == nil {
-		d.verificationsHandler = verificationshandler.NewVerificationsHTTPHandler(d.VerificationsService())
+func (d *diContainer) initExecutionsService(_ context.Context) error {
+	if d.executionsService != nil {
+		return nil
 	}
-
-	return d.verificationsHandler
+	d.executionsService = executionsservice.NewExecutionsService(
+		d.AdapterSandbox(),
+		d.VerificationsRepository(),
+		d.AdapterParser(),
+		d.AdapterSubmissions(),
+	)
+	return nil
 }
 
-func (d *diContainer) ExecutionsService() *executionsservice.ExecutionsService {
-	if d.executionsService == nil {
-		d.executionsService = executionsservice.NewExecutionsService(d.AdapterSandbox(), d.VerificationsRepository(),
-			d.AdapterParser(), d.AdapterSubmissions())
+func (d *diContainer) initExecutionsHandler(_ context.Context) error {
+	if d.executionsHandler != nil {
+		return nil
 	}
-
-	return d.executionsService
+	d.executionsHandler = executionshandler.New(d.ExecutionsService())
+	return nil
 }
 
-func (d *diContainer) ExecutionsHandler() *executionshandler.Handler {
-	if d.executionsHandler == nil {
-		d.executionsHandler = executionshandler.New(d.ExecutionsService())
+func (d *diContainer) initProblemsRepository(_ context.Context) error {
+	if d.problemsRepository != nil {
+		return nil
 	}
-
-	return d.executionsHandler
+	d.problemsRepository = problems.NewProblemsRepository(d.Pool())
+	return nil
 }
 
-func (d *diContainer) ProblemsRepository() *problems.Repository {
-	if d.problemsRepository == nil {
-		d.problemsRepository = problems.NewProblemsRepository(d.Pool())
+func (d *diContainer) initProblemsService(_ context.Context) error {
+	if d.problemsService != nil {
+		return nil
 	}
-
-	return d.problemsRepository
+	d.problemsService = problemsservice.NewProblemsService(d.problemsRepository)
+	return nil
 }
 
-func (d *diContainer) ProblemsService() *problemsservice.ProblemsService {
-	if d.problemsService == nil {
-		d.problemsService = problemsservice.NewProblemsService(d.ProblemsRepository())
+func (d *diContainer) initProblemsHandler(_ context.Context) error {
+	if d.problemsHandler != nil {
+		return nil
 	}
-
-	return d.problemsService
+	d.problemsHandler = problemshandler.NewProblemsHTTPHandler(d.problemsService)
+	return nil
 }
 
-func (d *diContainer) ProblemsHandler() *problemshandler.ProblemsHTTPHandler {
-	if d.problemsHandler == nil {
-		d.problemsHandler = problemshandler.NewProblemsHTTPHandler(d.ProblemsService())
+func (d *diContainer) Routes() ([]httpserver.Route, error) {
+	if d.executionsHandler == nil || d.problemsHandler == nil || d.verificationsHandler == nil {
+		return nil, errors.New("handlers are not initialized")
 	}
 
-	return d.problemsHandler
-}
-
-func (d *diContainer) Routes() []httpserver.Route {
-	if len(d.routes) == 0 {
-		var routes []httpserver.Route
-
-		getRoutesFuncs := []func() []httpserver.Route{
-			d.ExecutionsHandler().Routes,
-			d.ProblemsHandler().Routes,
-			d.VerificationsHandler().Routes,
-		}
-
-		for _, getRoutes := range getRoutesFuncs {
-			routes = append(routes, getRoutes()...)
-		}
-
-		d.routes = routes
+	var routes []httpserver.Route
+	for _, getRoutes := range []func() []httpserver.Route{
+		d.executionsHandler.Routes,
+		d.problemsHandler.Routes,
+		d.verificationsHandler.Routes,
+	} {
+		routes = append(routes, getRoutes()...)
 	}
-
-	return d.routes
+	return routes, nil
 }

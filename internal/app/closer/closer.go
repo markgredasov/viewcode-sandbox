@@ -7,8 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 )
 
@@ -68,10 +66,10 @@ func (c *closer) closeAll(ctx context.Context) error {
 			start := time.Now()
 
 			if err := f.fn(ctx); err != nil {
-				log.Error("failed to close resource", zap.String("name", f.name), zap.Error(err))
+				log.Error("failed to close resource", logger.String("name", f.name), logger.Err(err))
 				errs = append(errs, err)
 			} else {
-				log.Debug("resource closed", zap.String("name", f.name), zap.Duration("duration", time.Since(start)))
+				log.Debug("resource closed", logger.String("name", f.name), logger.Duration("duration", time.Since(start)))
 			}
 		}
 

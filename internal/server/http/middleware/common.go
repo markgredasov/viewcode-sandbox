@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"go.uber.org/zap"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/response"
@@ -36,9 +35,9 @@ func Logger(l *logger.Logger) Middleware {
 			requestID := r.Header.Get(requestIDHeader)
 
 			requestLogger := l.With(
-				zap.String("Request-ID", requestID),
-				zap.String("Method", r.Method),
-				zap.String("URL", r.URL.String()),
+				logger.String("request_id", requestID),
+				logger.String("method", r.Method),
+				logger.String("path", r.URL.String()),
 			)
 
 			ctx := requestLogger.InContext(r.Context())
@@ -57,14 +56,14 @@ func Recovery() Middleware {
 			}
 
 			ctx := r.Context()
-			logger := logger.FromContext(ctx)
-			responseHandler := response.NewHTTPResponseHandler(logger, w)
+			log := logger.FromContext(ctx)
+			responseHandler := response.NewHTTPResponseHandler(log, w)
 
 			defer func() {
 				if r := recover(); r != nil {
 					responseHandler.PanicResponse(
 						r,
-						"during handle HTTP request got unexpected panic",
+						"during handle http request got unexpected panic",
 					)
 				}
 			}()
@@ -83,22 +82,18 @@ func Trace() Middleware {
 			}
 
 			ctx := r.Context()
-			logger := logger.FromContext(ctx)
+			log := logger.FromContext(ctx)
 
 			writer := response.NewResponseWriter(w)
 
 			start := time.Now().UTC()
-			logger.Debug(
-				">>> incoming HTTP request",
-				zap.Time("time", start),
-			)
 
 			next.ServeHTTP(writer, r)
 
-			logger.Debug(
-				"<<< done HTTP request",
-				zap.Int("status-code", writer.GetStatusCode()),
-				zap.Duration("latency", time.Since(start)),
+			log.Debug(
+				"http request",
+				logger.Int("status_code", writer.GetStatusCode()),
+				logger.String("latency", time.Since(start).String()),
 			)
 		})
 	}

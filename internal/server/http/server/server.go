@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"go.uber.org/zap"
-
 	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 	"github.com/markgredasov/viewcode-sandbox/internal/server/http/middleware"
 )
@@ -53,8 +51,8 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 		}()
 
 		h.log.Warn(
-			"HTTP server started",
-			zap.String("address", h.config.Address),
+			"http server started",
+			logger.String("address", h.config.Address),
 		)
 
 		err := server.ListenAndServe()

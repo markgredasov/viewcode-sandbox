@@ -1,6 +1,6 @@
 module github.com/markgredasov/viewcode-sandbox
 
-go 1.26.5
+go 1.27.0
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -12,7 +12,6 @@ require (
 	github.com/moby/moby/client v0.5.1
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.6
-	go.uber.org/zap v1.28.0
 	google.golang.org/grpc v1.83.2
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -50,7 +49,6 @@ require (
 	go.opentelemetry.io/otel v1.44.0 // indirect
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect

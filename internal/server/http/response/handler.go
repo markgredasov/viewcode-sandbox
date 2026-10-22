@@ -5,8 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-
-	"go.uber.org/zap"
+	"runtime/debug"
 
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
@@ -30,7 +29,7 @@ func (h *HTTPResponseHandler) JSONResponse(responseBody any, statusCode int) {
 
 	if statusCode != http.StatusNoContent {
 		if err := json.NewEncoder(h.w).Encode(responseBody); err != nil {
-			h.log.Error("write HTTP response", zap.Error(err))
+			h.log.Error("write HTTP response", logger.Err(err))
 		}
 	}
 }
@@ -38,7 +37,7 @@ func (h *HTTPResponseHandler) JSONResponse(responseBody any, statusCode int) {
 func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 	var (
 		statusCode int
-		logFunc    func(string, ...zap.Field)
+		logFunc    func(string, ...any)
 	)
 
 	switch {
@@ -62,7 +61,7 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 		logFunc = h.log.Error
 	}
 
-	logFunc(msg, zap.Error(err))
+	logFunc(msg, logger.Err(err), logger.String("stack", string(debug.Stack())))
 
 	h.errorResponse(statusCode, err, msg)
 }
@@ -71,7 +70,7 @@ func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
 	statusCode := http.StatusInternalServerError
 	err := fmt.Errorf("unexpected panic: %v", p)
 
-	h.log.Error(msg, zap.Error(err), zap.Stack("stack"))
+	h.log.Error(msg, logger.Err(err))
 
 	h.errorResponse(statusCode, err, msg)
 }

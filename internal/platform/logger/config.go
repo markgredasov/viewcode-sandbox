@@ -2,22 +2,26 @@ package logger
 
 import (
 	"fmt"
-
-	"github.com/kelseyhightower/envconfig"
+	"log/slog"
+	"os"
+	"strings"
 )
 
+var defaultLevel = "info"
+
 type Config struct {
-	Level string `envconfig:"LEVEL" required:"true"`
+	Level slog.Level
 }
 
 func NewConfig() (Config, error) {
-	var config Config
-
-	if err := envconfig.Process("LOGGER", &config); err != nil {
-		return Config{}, fmt.Errorf("process envconfig: %w", err)
+	level, err := parseLevel(getEnv("LOGGER_LEVEL", defaultLevel))
+	if err != nil {
+		return Config{}, nil
 	}
 
-	return config, nil
+	return Config{
+		Level: level,
+	}, nil
 }
 
 func NewConfigMust() Config {
@@ -28,4 +32,30 @@ func NewConfigMust() Config {
 	}
 
 	return config
+}
+
+func getEnv(key, fallback string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok || strings.TrimSpace(value) == "" {
+		return fallback
+	}
+
+	return value
+}
+
+func parseLevel(level string) (slog.Level, error) {
+	level = strings.ToLower(strings.TrimSpace(level))
+
+	switch level {
+	case "debug":
+		return slog.LevelDebug, nil
+	case "info":
+		return slog.LevelInfo, nil
+	case "warn":
+		return slog.LevelWarn, nil
+	case "error":
+		return slog.LevelError, nil
+	default:
+		return 0, fmt.Errorf("unsupported log level: %s", level)
+	}
 }

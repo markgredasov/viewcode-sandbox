@@ -11,7 +11,7 @@ import (
 )
 
 // @title 		  viewcode
-// @version 	  1.0
+// @version 	  1.0.0
 // @description   leetcode analogue by github.com/markgredasov
 // @host 		  127.0.0.1:8080
 // @BasePath 	  /api/v1
@@ -34,5 +34,11 @@ func main() {
 
 	ctx = log.InContext(ctx)
 
-	app.New(ctx, log).Run(ctx)
+	application, err := app.New(ctx, log)
+	if err != nil {
+		log.Error("init app", logger.Err(err))
+		return
+	}
+
+	application.Run(ctx)
 }

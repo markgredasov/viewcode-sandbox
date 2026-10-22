@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"go.uber.org/zap"
-
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/model"
 	"github.com/markgredasov/viewcode-sandbox/internal/model/execution"
@@ -29,7 +27,7 @@ func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, lang
 
 	subm, err := s.submissionsPort.CreateSubmission(ctx, userID, problemID, tests.TestsNumber, lang)
 	if err != nil {
-		log.Error("failed to create submission", zap.String("problemID", problemID), zap.String("userID", userID))
+		log.Error("failed to create submission", logger.String("problemID", problemID), logger.String("userID", userID))
 	}
 
 	codeModel, err := model.NewCode(code)
@@ -39,7 +37,7 @@ func (s *ExecutionsService) Execute(ctx context.Context, userID, problemID, lang
 
 	subm, err = s.submissionsPort.SetRunning(ctx, subm.ID.String())
 	if err != nil {
-		log.Error("failed to set submission running", zap.String("submissionID", subm.ID.String()))
+		log.Error("failed to set submission running", logger.String("submissionID", subm.ID.String()))
 	}
 
 	execRes, err := s.runTests(ctx, subm, codeModel, tests)
@@ -101,7 +99,7 @@ func (s *ExecutionsService) parseToExecution(ctx context.Context, log *logger.Lo
 
 	subm, err = s.submissionsPort.SetResult(ctx, subm.ID.String(), status, testsResult.PassedTestsNumber, testsResult.PassingDurationInMs)
 	if err != nil {
-		log.Error("failed to set submission result", zap.String("submissionID", subm.ID.String()))
+		log.Error("failed to set submission result", logger.String("submissionID", subm.ID.String()))
 		subm.TestsTotal = testsResult.TotalTestsNumber
 		subm.TestsPassed = testsResult.PassedTestsNumber
 		subm.ExecutionTimeInMS = int(testsResult.PassingDurationInMs)

@@ -6,8 +6,6 @@ import (
 	"os"
 	"time"
 
-	"go.uber.org/zap"
-
 	errs "github.com/markgredasov/viewcode-sandbox/internal/errors"
 	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 )
@@ -24,7 +22,7 @@ func (s *sandbox) executeTestsLanguageGo(ctx context.Context, request executionR
 	defer func() {
 		err = os.RemoveAll(workDir)
 		if err != nil {
-			log.Error("remove all", zap.Error(err))
+			log.Error("remove all", logger.Err(err))
 		}
 	}()
 

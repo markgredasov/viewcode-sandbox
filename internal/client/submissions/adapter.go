@@ -76,6 +76,10 @@ func NewAdapter(cfg Config, opts ...grpc.DialOption) (*Adapter, error) {
 	}, nil
 }
 
+func (a *Adapter) Close() error {
+	return a.client.close()
+}
+
 func (a *Adapter) CreateSubmission(ctx context.Context, userID, problemID string,
 	testsTotal int, language model.Language,
 ) (submission.Submission, error) {
