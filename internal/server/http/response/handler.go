@@ -61,7 +61,7 @@ func (h *HTTPResponseHandler) ErrorResponse(err error, msg string) {
 		logFunc = h.log.Error
 	}
 
-	logFunc(msg, logger.Err(err), logger.String("stack", string(debug.Stack())))
+	logFunc(msg, logger.Err(err))
 
 	h.errorResponse(statusCode, err, msg)
 }
@@ -70,7 +70,7 @@ func (h *HTTPResponseHandler) PanicResponse(p any, msg string) {
 	statusCode := http.StatusInternalServerError
 	err := fmt.Errorf("unexpected panic: %v", p)
 
-	h.log.Error(msg, logger.Err(err))
+	h.log.Error(msg, logger.Err(err), logger.String("stack", string(debug.Stack())))
 
 	h.errorResponse(statusCode, err, msg)
 }

@@ -40,8 +40,8 @@ func (l *Logger) With(fields ...any) *Logger {
 	}
 }
 
-func (l *Logger) InContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, loggerKey, l)
+func InContext(ctx context.Context, log *Logger) context.Context {
+	return context.WithValue(ctx, loggerKey, log)
 }
 
 func Err(value error) slog.Attr {

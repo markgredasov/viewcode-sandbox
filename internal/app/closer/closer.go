@@ -30,8 +30,8 @@ func Add(name string, fn func(context.Context) error) {
 
 // CloseAll calls all close funcs of the globalCloser in LIFO order. Accepts context
 // with timeout - if a resource will not close in time context cancelled.
-func CloseAll(ctx context.Context) error {
-	return globalCloser.closeAll(ctx)
+func CloseAll(ctx context.Context, log *logger.Logger) error {
+	return globalCloser.closeAll(ctx, log)
 }
 
 // add appends closer func with the name of the resource.
@@ -43,10 +43,8 @@ func (c *closer) add(name string, fn func(context.Context) error) {
 }
 
 // closeAll closes all private globalCloser resources.
-func (c *closer) closeAll(ctx context.Context) error {
+func (c *closer) closeAll(ctx context.Context, log *logger.Logger) error {
 	var result error
-
-	log := logger.FromContext(ctx)
 
 	c.once.Do(func() {
 		c.mu.Lock()

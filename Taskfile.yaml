@@ -9,7 +9,7 @@ includes:
   app: ./taskfiles/App.yaml
 
 vars:
-  GO_VERSION: '1.26.3'
+  GO_VERSION: '1.27.0'
   GOLANGCI_LINT_VERSION: 'v2.12.2'
 
   BIN_DIR: '{{.ROOT_DIR}}/bin'

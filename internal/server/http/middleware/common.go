@@ -40,7 +40,7 @@ func Logger(l *logger.Logger) Middleware {
 				logger.String("path", r.URL.String()),
 			)
 
-			ctx := requestLogger.InContext(r.Context())
+			ctx := logger.InContext(r.Context(), requestLogger)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -61,10 +61,7 @@ func Recovery() Middleware {
 
 			defer func() {
 				if r := recover(); r != nil {
-					responseHandler.PanicResponse(
-						r,
-						"during handle http request got unexpected panic",
-					)
+					responseHandler.PanicResponse(r, "during handle http request got unexpected panic")
 				}
 			}()
 

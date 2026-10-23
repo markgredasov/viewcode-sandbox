@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os/signal"
 	"syscall"
 
 	"github.com/markgredasov/viewcode-sandbox/internal/app"
+	"github.com/markgredasov/viewcode-sandbox/internal/app/closer"
 	"github.com/markgredasov/viewcode-sandbox/internal/platform/logger"
 )
 
@@ -32,13 +34,17 @@ func main() {
 		return
 	}
 
-	ctx = log.InContext(ctx)
-
 	application, err := app.New(ctx, log)
 	if err != nil {
-		log.Error("init app", logger.Err(err))
+		if clErr := closer.CloseAll(ctx, log); err != nil {
+			err = errors.Join(err, clErr)
+		}
+		log.Error("init application", logger.Err(err))
 		return
 	}
 
-	application.Run(ctx)
+	if err := application.Run(ctx); err != nil {
+		log.Error("run application", logger.Err(err))
+		return
+	}
 }
