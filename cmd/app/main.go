@@ -36,7 +36,7 @@ func main() {
 
 	application, err := app.New(ctx, log)
 	if err != nil {
-		if clErr := closer.CloseAll(ctx, log); err != nil {
+		if clErr := closer.CloseAll(ctx, log); clErr != nil {
 			err = errors.Join(err, clErr)
 		}
 		log.Error("init application", logger.Err(err))
